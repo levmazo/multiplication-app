@@ -370,8 +370,8 @@ function showMenu(message) {
   if (msgTimer) { clearTimeout(msgTimer); msgTimer = null; }
   el.levelMessage.textContent = message || '';
   if (message) {
-    // подсказка внизу меню сама исчезает через пару секунд
-    msgTimer = setTimeout(() => { el.levelMessage.textContent = ''; msgTimer = null; }, 2500);
+    // подсказка внизу меню сама исчезает через одну секунду
+    msgTimer = setTimeout(() => { el.levelMessage.textContent = ''; msgTimer = null; }, 1000);
   }
   renderMenu();
   hideAllScreens();
