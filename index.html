@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multiplication trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ЭКРАН ВЫБОРА УРОВНЯ -->
+  <main id="menu-screen">
+    <div id="langWrap" class="lang-wrap">
+      <button id="langBtn" class="lang-btn" type="button" data-i18n="langBtn">⚙ Язык</button>
+      <div id="langMenu" class="lang-menu hidden">
+        <button type="button" data-lang="ru">Русский</button>
+        <button type="button" data-lang="nl">Nederlands</button>
+        <button type="button" data-lang="en">English</button>
+      </div>
+    </div>
+    <h1 data-i18n="menuTitle">✖️ Таблица умножения</h1>
+    <p class="overall"><span data-i18n="learnedTotal">Выучено всего:</span> <span id="overallMastered">0</span> <span data-i18n="of">из</span> <span id="overallTotal">169</span></p>
+    <div id="levelMessage" class="level-message"></div>
+    <p class="hint" data-i18n="chooseLevel">Выбери уровень:</p>
+    <div id="levelButtons" class="level-grid"></div>
+    <button id="resetAllBtn" class="reset-btn" type="button" data-i18n="resetAll">Сбросить весь прогресс</button>
+  </main>
+
+  <!-- ЭКРАН ПОВТОРА ПРОЙДЕННОГО УРОВНЯ -->
+  <main id="options-screen" class="hidden">
+    <button id="optionsBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 id="optionsTitle">Вы уже сделали этот уровень</h1>
+    <p class="hint" data-i18n="optionsHint">…но можете сделать ещё раз.</p>
+    <div id="optionsMessage" class="level-message"></div>
+    <div class="options-buttons">
+      <button id="optNoRepeat" type="button" data-i18n="optNoRepeat">Не повторять</button>
+      <button id="optViewAnswers" type="button" data-i18n="optViewAnswers">Посмотреть ответы</button>
+      <button id="optRedo" type="button" data-i18n="optRedo">Сделать заново</button>
+    </div>
+  </main>
+
+  <!-- ЭКРАН СВОЕГО ВЫБОРА -->
+  <main id="custom-screen" class="hidden">
+    <button id="customBackBtn" class="back-btn" type="button" data-i18n="back">← Назад</button>
+    <h1 data-i18n="customTitle">Свой выбор</h1>
+    <p class="hint" data-i18n="customHint">Отметь, что хочешь тренировать:</p>
+    <div id="customChecks" class="custom-checks"></div>
+    <button id="customStartBtn" type="button" data-i18n="start">Начать</button>
+  </main>
+
+  <!-- ЭКРАН СЛУЧАЙНОГО НАБОРА -->
+  <main id="random-screen" class="hidden">
+    <button id="randomBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 data-i18n="randomTitle">🎲 Случайный набор</h1>
+    <p class="hint" data-i18n="randomHint">Будешь умножать на эти числа:</p>
+    <div id="randomNumbers" class="random-numbers">× ?</div>
+    <button id="randomRerollBtn" type="button" data-i18n="reroll">🎲 Другие две цифры</button>
+    <button id="randomStartBtn" type="button" data-i18n="start">Начать</button>
+  </main>
+
+  <!-- ИГРОВОЙ ЭКРАН -->
+  <main id="game-screen" class="hidden">
+    <button id="backBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 id="levelTitle">Уровень</h1>
+
+    <section class="stats">
+      <div class="stat-big"><span data-i18n="learned">Выучено:</span> <span id="mastered">0</span> <span data-i18n="of">из</span> <span id="total">0</span></div>
+      <div class="stat-small"><span data-i18n="correctLbl">Верно:</span> <span id="correct">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="wrong">0</span></div>
+    </section>
+
+    <div id="question">0 × 0</div>
+
+    <form id="answerForm" autocomplete="off">
+      <input type="number" id="answer" inputmode="numeric" placeholder="?" autofocus>
+      <button type="submit" id="submitBtn" disabled data-i18n="answerBtn">Ответить</button>
+    </form>
+
+    <button id="pauseBtn" class="pause-btn" type="button" data-i18n="pause">⏸ Пауза</button>
+
+    <div id="feedback">&nbsp;</div>
+  </main>
+
+  <!-- ЭКРАН РЕЗУЛЬТАТОВ (после уровня) -->
+  <section id="results-screen" class="hidden">
+    <h1 id="resultsTitle">Твои ответы</h1>
+    <p id="resultsSummary" class="results-summary"></p>
+    <p id="resultsTime" class="results-time"></p>
+    <div id="resultsList" class="results-list"></div>
+    <button id="resultsMenuBtn" data-i18n="menuBtn">В меню</button>
+  </section>
+
+  <!-- ЭКРАН ПОБЕДЫ -->
+  <section id="win-screen" class="hidden">
+    <h1 id="winTitle">🎉 Готово!</h1>
+    <p class="win-stats">
+      <span id="winText"></span><br>
+      <span data-i18n="winCorrectLbl">Верных ответов:</span> <span id="winCorrect">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="winWrong">0</span>
+    </p>
+    <p id="winTime" class="results-time"></p>
+    <button id="winMenuBtn" data-i18n="menuBtn">В меню</button>
+  </section>
+
+  <script src="game.js"></script>
+</body>
+</html>

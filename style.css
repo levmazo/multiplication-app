@@ -1,0 +1,286 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: linear-gradient(160deg, #1e3a8a, #6d28d9);
+  color: #fff;
+  padding: 16px;
+}
+
+#game-screen, #win-screen {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-size: 1.6rem;
+}
+
+/* --- Кнопка языка (слева вверху в меню) --- */
+.lang-wrap { position: relative; text-align: left; margin-bottom: 10px; }
+.lang-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 8px 14px;
+}
+.lang-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #1e293b;
+  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+.lang-menu button {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1rem;
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+
+/* --- Меню выбора уровня --- */
+.overall { font-size: 1.05rem; font-weight: 700; margin: 0 0 12px; }
+.hint { opacity: 0.85; margin: 6px 0 12px; }
+.level-message {
+  min-height: 1.4em;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #6ee7b7;
+  margin-bottom: 8px;
+}
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.level-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 6px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 14px;
+}
+.level-btn .lvl-name { font-size: 1.4rem; font-weight: 800; line-height: 1.1; }
+.level-btn .lvl-sub { font-size: 0.72rem; opacity: 0.85; }
+.level-btn .lvl-progress { font-size: 0.8rem; opacity: 0.95; }
+.level-btn.complete {
+  background: #16a34a;
+  box-shadow: 0 0 0 2px #4ade80 inset;
+}
+.level-btn.special { background: rgba(251, 191, 36, 0.22); }
+.level-btn.special.complete { background: #16a34a; }
+.level-btn.empty { background: rgba(255, 255, 255, 0.07); opacity: 0.6; }
+
+/* --- Свой выбор: чекбоксы --- */
+.custom-checks {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.check-item input { width: 20px; height: 20px; }
+.reset-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 10px 16px;
+}
+.back-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 8px 14px;
+  float: left;
+  margin-bottom: 4px;
+}
+
+/* --- Заблокированная плитка (диктант) --- */
+.level-btn.locked { background: rgba(255, 255, 255, 0.07); opacity: 0.65; }
+
+/* --- Экран повтора уровня --- */
+.options-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.options-buttons button { width: 100%; }
+#optNoRepeat { background: rgba(255, 255, 255, 0.2); color: #fff; }
+#optViewAnswers { background: #38bdf8; color: #08233a; }
+#optRedo { background: #22c55e; color: #06280f; }
+
+/* --- Случайный набор --- */
+.random-numbers {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin: 10px 0 22px;
+}
+#random-screen button { width: 100%; margin-bottom: 10px; }
+#randomRerollBtn { background: #38bdf8; color: #08233a; }
+
+/* --- Статистика --- */
+.stats { margin-bottom: 14px; }
+.stat-big { font-size: 1.1rem; font-weight: 700; }
+.stat-small { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+
+/* --- Вопрос --- */
+#question {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 10px 0 22px;
+  letter-spacing: 2px;
+}
+
+/* --- Форма ответа --- */
+#answerForm {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+#answer {
+  width: 130px;
+  padding: 14px;
+  font-size: 1.6rem;
+  text-align: center;
+  border: none;
+  border-radius: 12px;
+}
+/* убрать стрелочки у number input */
+#answer::-webkit-outer-spin-button,
+#answer::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#answer { -moz-appearance: textfield; }
+
+button {
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  background: #fbbf24;
+  color: #1e293b;
+  cursor: pointer;
+  transition: transform 0.08s ease;
+}
+button:active { transform: scale(0.95); }
+button:disabled {
+  background: #9ca3af;
+  color: #e5e7eb;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
+}
+
+/* --- Кнопка паузы --- */
+.pause-btn {
+  margin-top: 16px;
+  width: 100%;
+  background: #ef4444;
+  color: #fff;
+}
+.pause-btn.is-paused {
+  background: #22c55e;
+  color: #fff;
+}
+
+/* --- Обратная связь --- */
+#feedback {
+  margin-top: 18px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  min-height: 1.5em;
+}
+#feedback.ok { color: #6ee7b7; }
+#feedback.bad { color: #fca5a5; }
+#feedback.timeout { color: #fcd34d; }
+
+.pop { animation: pop 0.3s ease; }
+@keyframes pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* --- Экран результатов --- */
+.results-summary {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.results-time {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin: 0 0 16px;
+}
+.results-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.result-item.ok {
+  background: rgba(34, 197, 94, 0.25);
+  box-shadow: 0 0 0 1px #4ade80 inset;
+  justify-content: center;
+}
+.result-item.bad {
+  background: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 0 0 1px #f87171 inset;
+}
+.result-item .right-ans {
+  font-size: 0.9rem;
+  opacity: 0.95;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+/* --- Экран победы --- */
+.hidden { display: none; }
+.win-stats { font-size: 1.1rem; line-height: 1.6; margin: 16px 0 24px; }
