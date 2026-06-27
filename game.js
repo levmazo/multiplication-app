@@ -52,7 +52,7 @@ const STR = {
     rightAns: 'верно: {r}',
   },
   nl: {
-    langBtn: '⚙ Taal', menuTitle: '✖️ Tafel van vermenigvuldiging', learnedTotal: 'In totaal geleerd:',
+    langBtn: '⚙ Taal', menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
     of: 'van', chooseLevel: 'Kies een niveau:', resetAll: 'Alle voortgang wissen',
     backMenu: '← Naar menu', back: '← Terug',
     optionsHint: '…maar je kunt het nog een keer doen.', optNoRepeat: 'Niet herhalen',
