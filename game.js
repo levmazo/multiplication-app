@@ -32,7 +32,7 @@ const STR = {
     winCorrectLbl: 'Верных ответов:',
     levelSub: 'Уровень {n}', levelTitlePrefix: 'Уровень {n}: ', done: '✓ готово',
     learnedX: 'выучено {d}/{t}', dictName: 'Диктант', dictControl: 'контрольная',
-    dictLocked: 'пройди уровень', randName: 'Случайный набор', randTap: 'нажми',
+    dictLocked: 'Пройди уровень', randName: 'Случайный набор', randTap: 'Нажми',
     chooseAtLeastOne: 'Отметь хотя бы одно!',
     fbMastered: '✅ Верно! Выучено! ({a}×{b}={r})',
     fbStreak: '✅ Верно! Подряд: {s}/{n} (осталось {left})',
@@ -64,7 +64,7 @@ const STR = {
     winCorrectLbl: 'Goede antwoorden:',
     levelSub: 'Niveau {n}', levelTitlePrefix: 'Niveau {n}: ', done: '✓ klaar',
     learnedX: 'geleerd {d}/{t}', dictName: 'Dictee', dictControl: 'toets',
-    dictLocked: 'doe een niveau', randName: 'Willekeurige set', randTap: 'tik',
+    dictLocked: 'Doe een niveau', randName: 'Willekeurige set', randTap: 'Klik',
     chooseAtLeastOne: 'Kies er minstens één!',
     fbMastered: '✅ Goed! Geleerd! ({a}×{b}={r})',
     fbStreak: '✅ Goed! Op rij: {s}/{n} (nog {left})',
@@ -96,7 +96,7 @@ const STR = {
     winCorrectLbl: 'Correct answers:',
     levelSub: 'Level {n}', levelTitlePrefix: 'Level {n}: ', done: '✓ done',
     learnedX: 'learned {d}/{t}', dictName: 'Dictation', dictControl: 'test',
-    dictLocked: 'finish a level', randName: 'Random set', randTap: 'tap',
+    dictLocked: 'Finish a level', randName: 'Random set', randTap: 'Click',
     chooseAtLeastOne: 'Pick at least one!',
     fbMastered: '✅ Correct! Learned! ({a}×{b}={r})',
     fbStreak: '✅ Correct! In a row: {s}/{n} ({left} left)',
@@ -159,6 +159,7 @@ let paused = false;
 let qStartTime = 0;
 let pendingLevel = null;
 let randomChosen = [];
+let msgTimer = null;      // таймер авто-скрытия сообщения внизу меню
 
 let lastResults = {};
 let answersViewedAt = {};
@@ -232,6 +233,8 @@ function setLang(l) {
   lang = l;
   try { localStorage.setItem('mult_lang', l); } catch (e) { /* нет доступа */ }
   el.langMenu.classList.add('hidden');
+  if (msgTimer) { clearTimeout(msgTimer); msgTimer = null; }
+  el.levelMessage.textContent = '';
   applyLang();
 }
 function loadLang() {
@@ -364,7 +367,12 @@ function hideAllScreens() {
 function showMenu(message) {
   mode = null;
   paused = false;
+  if (msgTimer) { clearTimeout(msgTimer); msgTimer = null; }
   el.levelMessage.textContent = message || '';
+  if (message) {
+    // подсказка внизу меню сама исчезает через пару секунд
+    msgTimer = setTimeout(() => { el.levelMessage.textContent = ''; msgTimer = null; }, 2500);
+  }
   renderMenu();
   hideAllScreens();
   el.menuScreen.classList.remove('hidden');
