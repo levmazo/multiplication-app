@@ -20,7 +20,7 @@ const REDO_COOLDOWN = 5 * 60 * 1000;
 // =================== ПЕРЕВОДЫ ===================
 const STR = {
   ru: {
-    langBtn: '⚙ Язык', menuTitle: '✖️ Таблица умножения', learnedTotal: 'Выучено всего:',
+    langBtn: '⚙ Language', menuTitle: '✖️ Таблица умножения', learnedTotal: 'Выучено всего:',
     of: 'из', chooseLevel: 'Выбери уровень:', resetAll: 'Сбросить весь прогресс',
     backMenu: '← В меню', back: '← Назад',
     optionsHint: '…но можете сделать ещё раз.', optNoRepeat: 'Не повторять',
@@ -32,7 +32,7 @@ const STR = {
     winCorrectLbl: 'Верных ответов:',
     levelSub: 'Уровень {n}', levelTitlePrefix: 'Уровень {n}: ', done: '✓ готово',
     learnedX: 'выучено {d}/{t}', dictName: 'Диктант', dictControl: 'контрольная',
-    dictLocked: 'Пройди уровень', randName: 'Случайный набор', randTap: 'Нажми',
+    dictLocked: 'Пройди уровень', randName: 'Случайный набор', randTap: 'нажми',
     chooseAtLeastOne: 'Отметь хотя бы одно!',
     fbMastered: '✅ Верно! Выучено! ({a}×{b}={r})',
     fbStreak: '✅ Верно! Подряд: {s}/{n} (осталось {left})',
@@ -52,7 +52,7 @@ const STR = {
     rightAns: 'верно: {r}',
   },
   nl: {
-    langBtn: '⚙ Taal', menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
+    langBtn: '⚙ Language', menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
     of: 'van', chooseLevel: 'Kies een niveau:', resetAll: 'Alle voortgang wissen',
     backMenu: '← Naar menu', back: '← Terug',
     optionsHint: '…maar je kunt het nog een keer doen.', optNoRepeat: 'Niet herhalen',
@@ -64,7 +64,7 @@ const STR = {
     winCorrectLbl: 'Goede antwoorden:',
     levelSub: 'Niveau {n}', levelTitlePrefix: 'Niveau {n}: ', done: '✓ klaar',
     learnedX: 'geleerd {d}/{t}', dictName: 'Dictee', dictControl: 'toets',
-    dictLocked: 'Doe een niveau', randName: 'Willekeurige set', randTap: 'Klik',
+    dictLocked: 'Doe een niveau', randName: 'Willekeurige set', randTap: 'klik',
     chooseAtLeastOne: 'Kies er minstens één!',
     fbMastered: '✅ Goed! Geleerd! ({a}×{b}={r})',
     fbStreak: '✅ Goed! Op rij: {s}/{n} (nog {left})',
@@ -96,7 +96,7 @@ const STR = {
     winCorrectLbl: 'Correct answers:',
     levelSub: 'Level {n}', levelTitlePrefix: 'Level {n}: ', done: '✓ done',
     learnedX: 'learned {d}/{t}', dictName: 'Dictation', dictControl: 'test',
-    dictLocked: 'Finish a level', randName: 'Random set', randTap: 'Click',
+    dictLocked: 'Finish a level', randName: 'Random set', randTap: 'click',
     chooseAtLeastOne: 'Pick at least one!',
     fbMastered: '✅ Correct! Learned! ({a}×{b}={r})',
     fbStreak: '✅ Correct! In a row: {s}/{n} ({left} left)',
