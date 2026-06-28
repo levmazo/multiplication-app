@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- ЭКРАН ВЫБОРА УРОВНЯ -->
+  <!-- ГЛАВНОЕ МЕНЮ -->
   <main id="menu-screen">
     <div id="langWrap" class="lang-wrap">
-      <button id="langBtn" class="lang-btn" type="button" data-i18n="langBtn">⚙ Язык</button>
+      <button id="langBtn" class="lang-btn" type="button" data-i18n="langBtn">⚙ Language</button>
       <div id="langMenu" class="lang-menu hidden">
         <button type="button" data-lang="ru">Русский</button>
         <button type="button" data-lang="nl">Nederlands</button>
@@ -19,28 +19,28 @@
     </div>
     <h1 data-i18n="menuTitle">✖️ Таблица умножения</h1>
     <p class="overall"><span data-i18n="learnedTotal">Выучено всего:</span> <span id="overallMastered">0</span> <span data-i18n="of">из</span> <span id="overallTotal">169</span></p>
+    <p class="coin-balance"><span id="coinBalance">0</span></p>
     <div id="levelMessage" class="level-message"></div>
-    <p class="hint" data-i18n="chooseLevel">Выбери уровень:</p>
     <div id="levelButtons" class="level-grid"></div>
-    <button id="resetAllBtn" class="reset-btn" type="button" data-i18n="resetAll">Сбросить весь прогресс</button>
+    <button id="shopBtn" type="button" data-i18n="shopBtn">🛒 Магазин</button>
   </main>
 
-  <!-- ЭКРАН ПОВТОРА ПРОЙДЕННОГО УРОВНЯ -->
-  <main id="options-screen" class="hidden">
-    <button id="optionsBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
-    <h1 id="optionsTitle">Вы уже сделали этот уровень</h1>
-    <p class="hint" data-i18n="optionsHint">…но можете сделать ещё раз.</p>
-    <div id="optionsMessage" class="level-message"></div>
-    <div class="options-buttons">
-      <button id="optNoRepeat" type="button" data-i18n="optNoRepeat">Не повторять</button>
-      <button id="optViewAnswers" type="button" data-i18n="optViewAnswers">Посмотреть ответы</button>
-      <button id="optRedo" type="button" data-i18n="optRedo">Сделать заново</button>
-    </div>
+  <!-- МАГАЗИН -->
+  <main id="shop-screen" class="hidden">
+    <button id="shopBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 data-i18n="shopTitle">🛒 Магазин</h1>
+    <p class="coin-balance"><span id="shopBalance">0</span></p>
+    <div id="shopMessage" class="level-message"></div>
+    <h2 data-i18n="petsTitle">Питомцы</h2>
+    <p class="hint" data-i18n="petsHint">Питомец решает за тебя один пример (можно одного).</p>
+    <div id="shopPets" class="shop-grid"></div>
+    <h2 data-i18n="celebsTitle">Праздники победы</h2>
+    <div id="shopCelebs" class="shop-grid"></div>
   </main>
 
   <!-- ЭКРАН СВОЕГО ВЫБОРА -->
   <main id="custom-screen" class="hidden">
-    <button id="customBackBtn" class="back-btn" type="button" data-i18n="back">← Назад</button>
+    <button id="customBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
     <h1 data-i18n="customTitle">Свой выбор</h1>
     <p class="hint" data-i18n="customHint">Отметь, что хочешь тренировать:</p>
     <div id="customChecks" class="custom-checks"></div>
@@ -67,6 +67,8 @@
       <div class="stat-small"><span data-i18n="correctLbl">Верно:</span> <span id="correct">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="wrong">0</span></div>
     </section>
 
+    <div class="progressbar"><div id="progressfill"></div></div>
+
     <div id="question">0 × 0</div>
 
     <form id="answerForm" autocomplete="off">
@@ -79,10 +81,12 @@
     <div id="feedback">&nbsp;</div>
   </main>
 
-  <!-- ЭКРАН РЕЗУЛЬТАТОВ (после уровня) -->
+  <!-- ЭКРАН РЕЗУЛЬТАТОВ -->
   <section id="results-screen" class="hidden">
+    <div id="resultsCeleb" class="celeb-fx"></div>
     <h1 id="resultsTitle">Твои ответы</h1>
     <p id="resultsSummary" class="results-summary"></p>
+    <p id="resultsCoins" class="results-coins"></p>
     <p id="resultsTime" class="results-time"></p>
     <div id="resultsList" class="results-list"></div>
     <button id="resultsMenuBtn" data-i18n="menuBtn">В меню</button>
@@ -90,11 +94,13 @@
 
   <!-- ЭКРАН ПОБЕДЫ -->
   <section id="win-screen" class="hidden">
+    <div id="winCeleb" class="celeb-fx"></div>
     <h1 id="winTitle">🎉 Готово!</h1>
     <p class="win-stats">
       <span id="winText"></span><br>
       <span data-i18n="winCorrectLbl">Верных ответов:</span> <span id="winCorrect">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="winWrong">0</span>
     </p>
+    <p id="winCoins" class="results-coins"></p>
     <p id="winTime" class="results-time"></p>
     <button id="winMenuBtn" data-i18n="menuBtn">В меню</button>
   </section>

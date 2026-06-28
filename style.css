@@ -284,3 +284,47 @@ button:disabled {
 /* --- Экран победы --- */
 .hidden { display: none; }
 .win-stats { font-size: 1.1rem; line-height: 1.6; margin: 16px 0 24px; }
+
+/* --- Монеты, магазин, прогресс-бар, праздник --- */
+.coin-balance { font-size: 1.15rem; font-weight: 800; color: #fde047; margin: 0 0 12px; }
+.results-coins { font-size: 1.15rem; font-weight: 800; color: #fde047; margin: 0 0 8px; }
+
+.progressbar {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+#progressfill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #34d399, #22d3ee);
+  border-radius: 8px;
+  transition: width 0.25s ease;
+}
+
+#shop-screen h2 { font-size: 1.1rem; margin: 14px 0 4px; }
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 8px 0 6px;
+}
+.shop-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 4px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 14px;
+}
+.shop-item.active { background: #16a34a; box-shadow: 0 0 0 2px #4ade80 inset; }
+.shop-emoji { font-size: 1.8rem; }
+.shop-price { font-size: 0.78rem; opacity: 0.95; }
+
+.celeb-fx { font-size: 1.8rem; min-height: 1.6em; letter-spacing: 4px; }
+.cfx { display: inline-block; animation: cfxb 0.6s ease infinite alternate; }
+@keyframes cfxb { from { transform: translateY(0); } to { transform: translateY(-12px); } }
