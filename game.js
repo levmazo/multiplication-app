@@ -83,6 +83,7 @@ const STR = {
     petHint: '{e} подсказка: {a}×{b} = {sum}',
     customTitle: 'Свой выбор', customHint: 'Отметь, что хочешь тренировать:',
     chooseAtLeastOne: 'Отметь хотя бы одно!', finishCustom: '🎉 Готово!', learnedX: 'выучено {d}/{t}',
+    done: '✓ готово',
   },
   nl: {
     langBtn: '⚙ Language', menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
@@ -115,6 +116,7 @@ const STR = {
     petHint: '{e} hint: {a}×{b} = {sum}',
     customTitle: 'Eigen keuze', customHint: 'Vink aan wat je wilt oefenen:',
     chooseAtLeastOne: 'Kies er minstens één!', finishCustom: '🎉 Klaar!', learnedX: 'geleerd {d}/{t}',
+    done: '✓ klaar',
   },
   en: {
     langBtn: '⚙ Language', menuTitle: '✖️ Multiplication table', learnedTotal: 'Learned in total:',
@@ -147,6 +149,7 @@ const STR = {
     petHint: '{e} hint: {a}×{b} = {sum}',
     customTitle: 'Your choice', customHint: 'Check what you want to practice:',
     chooseAtLeastOne: 'Pick at least one!', finishCustom: '🎉 Done!', learnedX: 'learned {d}/{t}',
+    done: '✓ done',
   },
 };
 let lang = 'ru';
@@ -207,6 +210,7 @@ const el = {
   customChecks: document.getElementById('customChecks'),
   customStartBtn: document.getElementById('customStartBtn'),
   customBackBtn: document.getElementById('customBackBtn'),
+  customProgress: document.getElementById('customProgress'),
   randomScreen: document.getElementById('random-screen'),
   randomNumbers: document.getElementById('randomNumbers'),
   randomRerollBtn: document.getElementById('randomRerollBtn'),
@@ -467,11 +471,16 @@ function pickCeleb(c) {
 
 // =================== СВОЙ ВЫБОР ===================
 function showCustom() {
+  el.customProgress.textContent = `${t('learnedTotal')} ${overallMastered()} ${t('of')} ${facts.length}`;
   el.customChecks.innerHTML = '';
+  const tot = MAX - MIN + 1;
   for (let k = MIN; k <= MAX; k++) {
+    const done = facts.filter(f => f.a === k && f.mastered).length;
+    const complete = done === tot;
     const wrap = document.createElement('label');
     wrap.className = 'check-item';
-    wrap.innerHTML = `<input type="checkbox" value="${k}"><span>×${k}</span>`;
+    wrap.innerHTML = `<span class="check-top"><input type="checkbox" value="${k}"> ×${k}</span>` +
+      `<span class="check-progress${complete ? ' done' : ''}">${complete ? t('done') : done + '/' + tot}</span>`;
     el.customChecks.appendChild(wrap);
   }
   hideAllScreens();

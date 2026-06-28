@@ -114,7 +114,11 @@ h1 {
   font-weight: 700;
   cursor: pointer;
 }
+.check-item { flex-direction: column; gap: 4px; }
+.check-top { display: flex; align-items: center; gap: 6px; }
 .check-item input { width: 20px; height: 20px; }
+.check-progress { font-size: 0.72rem; font-weight: 700; opacity: 0.85; }
+.check-progress.done { color: #4ade80; opacity: 1; }
 .reset-btn {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
