@@ -22,12 +22,27 @@ function factValue(a, b) { return Math.min(factorScore(a), factorScore(b)); }
 function rewardForFacts(list) { return list.reduce((s, f) => s + factValue(f.a, f.b), 0); }
 function dictationReward(roundList) { return rewardForFacts(roundList); }
 
-const PETS = [
+const REGULAR_PETS = [
   { emoji: '🐱', price: 50 },
   { emoji: '🐶', price: 120 },
   { emoji: '🐉', price: 250 },
   { emoji: '🦄', price: 400 },
 ];
+const LEGENDARY_PETS = [
+  { emoji: '🦖', price: 1200 },
+  { emoji: '🐲', price: 2500 },
+  { emoji: '👑', price: 5000 },
+];
+const ALL_PETS = REGULAR_PETS.concat(LEGENDARY_PETS);
+const petByEmoji = {};
+ALL_PETS.forEach(p => { petByEmoji[p.emoji] = p; });
+// бонус к награде = доля от цены (чем дороже питомец, тем больше; легендарные — огромный)
+function petBonusPct(price) { return Math.round(price / 10); }   // 50→5%, 400→40%, 5000→500%
+function petBonusMultiplier() {
+  let pct = 0;
+  ownedPets.forEach(e => { if (petByEmoji[e]) pct += petByEmoji[e].price / 1000; });
+  return 1 + pct;
+}
 const CELEBS = [
   { emoji: '🎉', price: 0 },
   { emoji: '✨', price: 40 },
@@ -62,7 +77,8 @@ const STR = {
     winDictTitle: '🎉 Диктант сдан!', winDictText: 'Ты прошёл диктант без ошибок!',
     rightAns: 'верно: {r}', coinsPlus: '+{n} евро', currency: 'евро',
     shopBtn: '🛒 Магазин', shopTitle: '🛒 Магазин', petsTitle: 'Питомцы',
-    petsHint: 'Питомец решает за тебя один пример (можно одного).', celebsTitle: 'Праздники победы',
+    petsHint: 'Питомцы сидят рядом, дают подсказку и бонус евро (можно несколько).',
+    petsOwned: 'У тебя питомцев: {n}', legendaryTitle: 'Легендарные питомцы', celebsTitle: 'Праздники победы',
     buy: 'Купить', active: 'Активно', select: 'Выбрать', notEnough: 'Мало монет', free: 'бесплатно',
     petHint: '{e} подсказка: {a}×{b} = {sum}',
     customTitle: 'Свой выбор', customHint: 'Отметь, что хочешь тренировать:',
@@ -93,7 +109,8 @@ const STR = {
     winDictTitle: '🎉 Dictee gehaald!', winDictText: 'Je hebt het dictee zonder fouten gedaan!',
     rightAns: 'goed: {r}', coinsPlus: '+{n} euro', currency: 'euro',
     shopBtn: '🛒 Winkel', shopTitle: '🛒 Winkel', petsTitle: 'Huisdieren',
-    petsHint: 'Een huisdier lost één som voor je op (max. 1).', celebsTitle: 'Overwinningsfeestjes',
+    petsHint: 'Huisdieren zitten naast je, geven een hint en bonus-euro (meerdere kan).',
+    petsOwned: 'Jouw huisdieren: {n}', legendaryTitle: 'Legendarische huisdieren', celebsTitle: 'Overwinningsfeestjes',
     buy: 'Kopen', active: 'Actief', select: 'Kiezen', notEnough: 'Te weinig munten', free: 'gratis',
     petHint: '{e} hint: {a}×{b} = {sum}',
     customTitle: 'Eigen keuze', customHint: 'Vink aan wat je wilt oefenen:',
@@ -124,7 +141,8 @@ const STR = {
     winDictTitle: '🎉 Dictation passed!', winDictText: 'You passed the dictation with no mistakes!',
     rightAns: 'correct: {r}', coinsPlus: '+{n} euro', currency: 'euro',
     shopBtn: '🛒 Shop', shopTitle: '🛒 Shop', petsTitle: 'Pets',
-    petsHint: 'A pet solves one problem for you (max 1).', celebsTitle: 'Victory celebrations',
+    petsHint: 'Pets sit with you, give a hint and bonus euros (you can have several).',
+    petsOwned: 'Your pets: {n}', legendaryTitle: 'Legendary pets', celebsTitle: 'Victory celebrations',
     buy: 'Buy', active: 'Active', select: 'Select', notEnough: 'Not enough coins', free: 'free',
     petHint: '{e} hint: {a}×{b} = {sum}',
     customTitle: 'Your choice', customHint: 'Check what you want to practice:',
@@ -153,7 +171,7 @@ function twin(f) { return factByKey[key(f.b, f.a)]; }
 
 // --- Состояние ---
 let coins = 0;
-let ownedPet = null;          // emoji или null
+let ownedPets = [];           // список emoji (можно несколько и повторы)
 let celebration = '🎉';       // активный праздник
 let ownedCelebs = ['🎉'];     // купленные праздники
 let mode = null;              // 'session' | 'dictTest' | null
@@ -181,7 +199,9 @@ const el = {
   shopBackBtn: document.getElementById('shopBackBtn'),
   shopBalance: document.getElementById('shopBalance'),
   shopMessage: document.getElementById('shopMessage'),
+  petsOwned: document.getElementById('petsOwned'),
   shopPets: document.getElementById('shopPets'),
+  shopLegendary: document.getElementById('shopLegendary'),
   shopCelebs: document.getElementById('shopCelebs'),
   customScreen: document.getElementById('custom-screen'),
   customChecks: document.getElementById('customChecks'),
@@ -226,7 +246,7 @@ const el = {
   petCompanion: document.getElementById('petCompanion'),
 };
 
-function updatePet() { el.petCompanion.textContent = ownedPet || ''; }
+function updatePet() { el.petCompanion.textContent = ownedPets.join(''); }
 
 el.overallTotal.textContent = facts.length;
 
@@ -259,7 +279,7 @@ el.answer.addEventListener('input', updateSubmitState);
 // --- Сохранение ---
 const SAVE_KEY = 'mult_progress';
 function saveState() {
-  const data = { facts: {}, coins: coins, pet: ownedPet, celeb: celebration, owned: ownedCelebs };
+  const data = { facts: {}, coins: coins, pets: ownedPets, celeb: celebration, owned: ownedCelebs };
   facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
@@ -268,7 +288,7 @@ function loadState() {
   try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { data = null; }
   if (!data) return;
   coins = data.coins || 0;
-  ownedPet = data.pet || null;
+  ownedPets = data.pets || (data.pet ? [data.pet] : []);  // миграция со старого формата
   celebration = data.celeb || '🎉';
   ownedCelebs = data.owned || ['🎉'];
   if (ownedCelebs.indexOf('🎉') === -1) ownedCelebs.push('🎉');
@@ -278,6 +298,16 @@ function loadState() {
       if (s) { f.streak = s.s || 0; f.mastered = !!s.m; }
     });
   }
+}
+// одноразовая починка: вернуть 306 евро и убрать питомцев (баг с невозвратом за Единорога)
+function applyOneTimeFix() {
+  try {
+    if (localStorage.getItem('mult_fix_306')) return;
+    coins = 306;
+    ownedPets = [];
+    localStorage.setItem('mult_fix_306', '1');
+    saveState();
+  } catch (e) { /* нет доступа */ }
 }
 
 // --- Монеты ---
@@ -379,19 +409,26 @@ function shopMsg(text) {
   el.shopMessage.textContent = text;
   setTimeout(() => { if (el.shopMessage.textContent === text) el.shopMessage.textContent = ''; }, 1200);
 }
+function petCard(p, container) {
+  const count = ownedPets.filter(e => e === p.emoji).length;
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'shop-item' + (count > 0 ? ' active' : '');
+  b.innerHTML = `<span class="shop-emoji">${p.emoji}${count > 1 ? '<span class="pet-count">×' + count + '</span>' : ''}</span>` +
+    `<span class="shop-price">${p.price} ${t('currency')}</span>` +
+    `<span class="shop-bonus">+${petBonusPct(p.price)}%</span>`;
+  b.addEventListener('click', () => buyPet(p));
+  container.appendChild(b);
+}
 function renderShop() {
   updateBalances();
-  // питомцы
+  el.petsOwned.textContent = t('petsOwned', { n: ownedPets.length });
+  // обычные питомцы
   el.shopPets.innerHTML = '';
-  PETS.forEach(p => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'shop-item' + (ownedPet === p.emoji ? ' active' : '');
-    const tag = ownedPet === p.emoji ? t('active') : (p.price + ' ' + t('currency'));
-    b.innerHTML = `<span class="shop-emoji">${p.emoji}</span><span class="shop-price">${tag}</span>`;
-    b.addEventListener('click', () => buyPet(p));
-    el.shopPets.appendChild(b);
-  });
+  REGULAR_PETS.forEach(p => petCard(p, el.shopPets));
+  // легендарные питомцы
+  el.shopLegendary.innerHTML = '';
+  LEGENDARY_PETS.forEach(p => petCard(p, el.shopLegendary));
   // праздники
   el.shopCelebs.innerHTML = '';
   CELEBS.forEach(c => {
@@ -409,10 +446,9 @@ function renderShop() {
   });
 }
 function buyPet(p) {
-  if (ownedPet === p.emoji) return;
   if (coins < p.price) { shopMsg(t('notEnough')); return; }
   coins -= p.price;
-  ownedPet = p.emoji;   // новый питомец заменяет старого
+  ownedPets.push(p.emoji);   // можно покупать несколько, в т.ч. одного и того же
   updatePet();
   saveState();
   renderShop();
@@ -570,9 +606,9 @@ function submitSession() {
     // питомец: один раз за заход, на 2-й ошибке — подсказка (только в обучении)
     session.wrongTotal++;
     const lesson = (session.kind === 'random' || session.kind === 'custom');
-    if (ownedPet && lesson && !session.hintUsed && session.wrongTotal >= 2) {
+    if (ownedPets.length > 0 && lesson && !session.hintUsed && session.wrongTotal >= 2) {
       session.hintUsed = true;
-      flash(t('petHint', { e: ownedPet, a: current.a, b: current.b, sum: repeatedAddition(current.a, current.b) }), 'ok', 2000);
+      flash(t('petHint', { e: ownedPets[0], a: current.a, b: current.b, sum: repeatedAddition(current.a, current.b) }), 'ok', 2000);
     } else {
       flash(t('fbWrong', { a: current.a, b: current.b, r: right }), 'bad');
     }
@@ -588,7 +624,7 @@ function finishSession() {
     return;
   }
   if (session.log.length === 0) { showMenu(t('allLearnedHere')); return; }
-  const earned = session.reward;
+  const earned = Math.round(session.reward * petBonusMultiplier());
   if (earned > 0) addCoins(earned);
   showResults(session.finishTitle, session.log, session.timeMs, session.answers, earned);
 }
@@ -661,12 +697,13 @@ function endDictRound() {
 }
 function winDictation() {
   mode = null;
-  addCoins(dict.reward);
+  const earned = Math.round(dict.reward * petBonusMultiplier());
+  addCoins(earned);
   el.winTitle.textContent = t('winDictTitle');
   el.winText.textContent = t('winDictText');
   el.winCorrect.textContent = dict.correct;
   el.winWrong.textContent = dict.wrong;
-  el.winCoins.textContent = t('coinsPlus', { n: dict.reward });
+  el.winCoins.textContent = t('coinsPlus', { n: earned });
   el.winTime.textContent = timeLine(dict.timeMs, dict.answers);
   hideAllScreens();
   el.winScreen.classList.remove('hidden');
@@ -802,6 +839,7 @@ el.langMenu.querySelectorAll('[data-lang]').forEach(b => {
 
 loadLang();
 loadState();
+applyOneTimeFix();
 updatePet();
 applyLang();
 showMenu();

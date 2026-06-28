@@ -322,8 +322,11 @@ button:disabled {
   border-radius: 14px;
 }
 .shop-item.active { background: #16a34a; box-shadow: 0 0 0 2px #4ade80 inset; }
-.shop-emoji { font-size: 1.8rem; }
+.shop-emoji { font-size: 1.8rem; position: relative; }
+.shop-emoji .pet-count { font-size: 0.8rem; font-weight: 800; vertical-align: super; }
 .shop-price { font-size: 0.78rem; opacity: 0.95; }
+.shop-bonus { font-size: 0.72rem; font-weight: 800; color: #fde047; }
+.pets-owned { font-size: 0.95rem; font-weight: 700; margin: 0 0 8px; opacity: 0.95; }
 
 .pet-companion {
   position: fixed;
