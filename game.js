@@ -64,7 +64,7 @@ const STR = {
     shopBtn: '🛒 Магазин', shopTitle: '🛒 Магазин', petsTitle: 'Питомцы',
     petsHint: 'Питомец решает за тебя один пример (можно одного).', celebsTitle: 'Праздники победы',
     buy: 'Купить', active: 'Активно', select: 'Выбрать', notEnough: 'Мало монет', free: 'бесплатно',
-    petHelped: '{e} решает {a}×{b} за тебя!',
+    petHint: '{e} подсказка: {a}×{b} = {sum}',
     customTitle: 'Свой выбор', customHint: 'Отметь, что хочешь тренировать:',
     chooseAtLeastOne: 'Отметь хотя бы одно!', finishCustom: '🎉 Готово!', learnedX: 'выучено {d}/{t}',
   },
@@ -95,7 +95,7 @@ const STR = {
     shopBtn: '🛒 Winkel', shopTitle: '🛒 Winkel', petsTitle: 'Huisdieren',
     petsHint: 'Een huisdier lost één som voor je op (max. 1).', celebsTitle: 'Overwinningsfeestjes',
     buy: 'Kopen', active: 'Actief', select: 'Kiezen', notEnough: 'Te weinig munten', free: 'gratis',
-    petHelped: '{e} lost {a}×{b} voor je op!',
+    petHint: '{e} hint: {a}×{b} = {sum}',
     customTitle: 'Eigen keuze', customHint: 'Vink aan wat je wilt oefenen:',
     chooseAtLeastOne: 'Kies er minstens één!', finishCustom: '🎉 Klaar!', learnedX: 'geleerd {d}/{t}',
   },
@@ -126,7 +126,7 @@ const STR = {
     shopBtn: '🛒 Shop', shopTitle: '🛒 Shop', petsTitle: 'Pets',
     petsHint: 'A pet solves one problem for you (max 1).', celebsTitle: 'Victory celebrations',
     buy: 'Buy', active: 'Active', select: 'Select', notEnough: 'Not enough coins', free: 'free',
-    petHelped: '{e} solves {a}×{b} for you!',
+    petHint: '{e} hint: {a}×{b} = {sum}',
     customTitle: 'Your choice', customHint: 'Check what you want to practice:',
     chooseAtLeastOne: 'Pick at least one!', finishCustom: '🎉 Done!', learnedX: 'learned {d}/{t}',
   },
@@ -223,7 +223,10 @@ const el = {
   winCoins: document.getElementById('winCoins'),
   winTime: document.getElementById('winTime'),
   winMenuBtn: document.getElementById('winMenuBtn'),
+  petCompanion: document.getElementById('petCompanion'),
 };
+
+function updatePet() { el.petCompanion.textContent = ownedPet || ''; }
 
 el.overallTotal.textContent = facts.length;
 
@@ -410,6 +413,7 @@ function buyPet(p) {
   if (coins < p.price) { shopMsg(t('notEnough')); return; }
   coins -= p.price;
   ownedPet = p.emoji;   // новый питомец заменяет старого
+  updatePet();
   saveState();
   renderShop();
 }
@@ -484,6 +488,7 @@ function startSession(opts) {
     need: opts.need || NEED_STREAK, title: opts.title,
     finishTitle: opts.finishTitle || t('finishRandom'), reward: opts.reward || 0,
     streak: {}, log: [], timeMs: 0, answers: 0,
+    wrongTotal: 0, hintUsed: false,
   };
   mode = 'session';
   paused = false;
@@ -496,23 +501,17 @@ function startSession(opts) {
   el.feedback.className = '';
   hideAllScreens();
   el.gameScreen.classList.remove('hidden');
-  applyPet();
   updateSessionStats();
   nextSessionQuestion();
 }
 
-// питомец решает за тебя один пример (только в обучающем наборе, не в диктанте)
-function applyPet() {
-  if (!ownedPet || session.kind === 'dictLearn') return;
-  const pool = sessionPool();
-  if (pool.length === 0) return;
-  const f = pool[0];
-  session.streak[key(f.a, f.b)] = session.need;     // засчитываем для сеанса
-  if (session.progress && !f.mastered) {            // и в общий прогресс
-    f.streak = NEED_STREAK; f.mastered = true;
-  }
-  el.feedback.textContent = t('petHelped', { e: ownedPet, a: f.a, b: f.b });
-  el.feedback.className = 'ok';
+// пример как повторное сложение (для подсказки питомца): 7×8 → 8+8+…=56
+function repeatedAddition(a, b) {
+  const count = Math.min(a, b), val = Math.max(a, b);
+  if (count === 0) return '0';
+  const parts = [];
+  for (let i = 0; i < count; i++) parts.push(val);
+  return parts.join('+') + ' = ' + (a * b);
 }
 
 function sessionDone(f) { return session.temp ? (session.streak[key(f.a, f.b)] || 0) >= session.need : f.mastered; }
@@ -568,7 +567,15 @@ function submitSession() {
     if (session.temp) session.streak[key(current.a, current.b)] = 0;
     else current.streak = 0;
     if (session.progress && !current.mastered) current.streak = 0;
-    flash(t('fbWrong', { a: current.a, b: current.b, r: right }), 'bad');
+    // питомец: один раз за заход, на 2-й ошибке — подсказка (только в обучении)
+    session.wrongTotal++;
+    const lesson = (session.kind === 'random' || session.kind === 'custom');
+    if (ownedPet && lesson && !session.hintUsed && session.wrongTotal >= 2) {
+      session.hintUsed = true;
+      flash(t('petHint', { e: ownedPet, a: current.a, b: current.b, sum: repeatedAddition(current.a, current.b) }), 'ok', 2000);
+    } else {
+      flash(t('fbWrong', { a: current.a, b: current.b, r: right }), 'bad');
+    }
   }
   updateSessionStats();
   saveState();
@@ -795,5 +802,6 @@ el.langMenu.querySelectorAll('[data-lang]').forEach(b => {
 
 loadLang();
 loadState();
+updatePet();
 applyLang();
 showMenu();

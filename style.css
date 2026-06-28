@@ -325,6 +325,18 @@ button:disabled {
 .shop-emoji { font-size: 1.8rem; }
 .shop-price { font-size: 0.78rem; opacity: 0.95; }
 
+.pet-companion {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  font-size: 2.6rem;
+  z-index: 20;
+  pointer-events: none;
+  animation: petbob 1.2s ease-in-out infinite alternate;
+}
+.pet-companion:empty { display: none; }
+@keyframes petbob { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+
 .celeb-fx { font-size: 1.8rem; min-height: 1.6em; letter-spacing: 4px; }
 .cfx { display: inline-block; animation: cfxb 0.6s ease infinite alternate; }
 @keyframes cfxb { from { transform: translateY(0); } to { transform: translateY(-12px); } }
