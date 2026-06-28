@@ -7,29 +7,32 @@
 const MIN = 0;
 const MAX = 12;
 const NEED_STREAK = 2;
-const DICT_REWARD = 60;
 
-function coinWeight(f) {
-  if (f <= 1) return 2;
-  if (f <= 3) return 3;
-  if (f <= 5) return 4;
-  if (f <= 7) return 8;
-  if (f <= 9) return 10;
-  return 12;
+// --- Награда по НАСТОЯЩЕЙ сложности ---
+// Лёгкие таблицы (есть трюк): 0,1,2,5,10,11 → 2. Средние: 3,4 → 4. Сложные: 6,7,8,9,12 → 8.
+const EASY_FACTORS = [0, 1, 2, 5, 10, 11];
+const MEDIUM_FACTORS = [3, 4];
+function factorScore(f) {
+  if (EASY_FACTORS.includes(f)) return 2;
+  if (MEDIUM_FACTORS.includes(f)) return 4;
+  return 8;
 }
-function rewardForFactors(factors) { return factors.reduce((s, f) => s + coinWeight(f), 0); }
+// Пример оценивается по самому ЛЁГКОМУ множителю: есть трюк → пример лёгкий (7×10=лёгкий, 7×8=сложный)
+function factValue(a, b) { return Math.min(factorScore(a), factorScore(b)); }
+function rewardForFacts(list) { return list.reduce((s, f) => s + factValue(f.a, f.b), 0); }
+function dictationReward(roundList) { return rewardForFacts(roundList); }
 
 const PETS = [
-  { emoji: '🐱', price: 30 },
-  { emoji: '🐶', price: 50 },
-  { emoji: '🐉', price: 100 },
-  { emoji: '🦄', price: 150 },
+  { emoji: '🐱', price: 50 },
+  { emoji: '🐶', price: 120 },
+  { emoji: '🐉', price: 250 },
+  { emoji: '🦄', price: 400 },
 ];
 const CELEBS = [
   { emoji: '🎉', price: 0 },
-  { emoji: '✨', price: 20 },
-  { emoji: '🎆', price: 40 },
-  { emoji: '🌈', price: 40 },
+  { emoji: '✨', price: 40 },
+  { emoji: '🎆', price: 80 },
+  { emoji: '🌈', price: 120 },
 ];
 
 // =================== ПЕРЕВОДЫ ===================
@@ -445,7 +448,7 @@ function startCustom() {
   startSession({
     kind: 'custom', temp: true, progress: true,
     targets: factsByFactorsList(chosen),
-    reward: rewardForFactors(chosen),
+    reward: rewardForFacts(factsByFactorsList(chosen)),
     title: t('customTitle'),
     finishTitle: t('finishCustom'),
   });
@@ -467,7 +470,7 @@ function startRandomSet() {
   startSession({
     kind: 'random', temp: true, progress: true,
     targets: factsByFactorsList(randomChosen),
-    reward: rewardForFactors(randomChosen),
+    reward: rewardForFacts(factsByFactorsList(randomChosen)),
     title: t('randomSessionTitle', { list: randomChosen.join(', ×') }),
     finishTitle: t('finishRandom'),
   });
@@ -587,6 +590,7 @@ function finishSession() {
 function startDictation() {
   dict = { roundList: masteredFacts(), timeMs: 0, answers: 0, correct: 0, wrong: 0 };
   if (dict.roundList.length === 0) { showMenu(t('dictNeedLevelShort')); return; }
+  dict.reward = dictationReward(dict.roundList);
   beginDictRound(t('dictTitle'));
 }
 function beginDictRound(title) {
@@ -650,12 +654,12 @@ function endDictRound() {
 }
 function winDictation() {
   mode = null;
-  addCoins(DICT_REWARD);
+  addCoins(dict.reward);
   el.winTitle.textContent = t('winDictTitle');
   el.winText.textContent = t('winDictText');
   el.winCorrect.textContent = dict.correct;
   el.winWrong.textContent = dict.wrong;
-  el.winCoins.textContent = t('coinsPlus', { n: DICT_REWARD });
+  el.winCoins.textContent = t('coinsPlus', { n: dict.reward });
   el.winTime.textContent = timeLine(dict.timeMs, dict.answers);
   hideAllScreens();
   el.winScreen.classList.remove('hidden');
