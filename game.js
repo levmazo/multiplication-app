@@ -1,48 +1,44 @@
 // === Тренажёр таблицы умножения ===
-// Числа 0..12 (169 примеров). 3×5 и 5×3 — разные задачи.
-// Режимы: 🎲 Случайный набор (учишься) и 📝 Диктант (контрольная по выученному).
-// Выучено = 2 правильных ПОДРЯД. Монеты за прохождение → магазин (питомцы, праздники).
-// Языки: RU / NL / EN. Прогресс и монеты хранятся в localStorage.
+// Числа 0..12 (169 примеров). Режимы: 🎲 Случайный набор, ✎ Свой выбор, 📝 Диктант.
+// Выучено = 2 правильных ПОДРЯД. Евро за прохождение → магазин (питомцы, праздники).
+// Питомцы: коллекция; роли «Бонус» и «Подсказки» у РАЗНЫХ питомцев. Языки: RU/NL/EN.
 
 const MIN = 0;
 const MAX = 12;
 const NEED_STREAK = 2;
+const SLOW_MS = 30000; // «долго думал» — для подбора примеров в диктант
 
-// --- Награда по НАСТОЯЩЕЙ сложности ---
-// Лёгкие таблицы (есть трюк): 0,1,2,5,10,11 → 2. Средние: 3,4 → 4. Сложные: 6,7,8,9,12 → 8.
+// --- Награда по сложности: лёгкие 0,1,2,5,10,11 → 10; средние 3,4 → 70; сложные → 300 ---
 const EASY_FACTORS = [0, 1, 2, 5, 10, 11];
 const MEDIUM_FACTORS = [3, 4];
 function factorScore(f) {
-  if (EASY_FACTORS.includes(f)) return 2;
-  if (MEDIUM_FACTORS.includes(f)) return 4;
-  return 8;
+  if (EASY_FACTORS.includes(f)) return 10;
+  if (MEDIUM_FACTORS.includes(f)) return 70;
+  return 300;
 }
-// Пример оценивается по самому ЛЁГКОМУ множителю: есть трюк → пример лёгкий (7×10=лёгкий, 7×8=сложный)
 function factValue(a, b) { return Math.min(factorScore(a), factorScore(b)); }
 function rewardForFacts(list) { return list.reduce((s, f) => s + factValue(f.a, f.b), 0); }
-function dictationReward(roundList) { return rewardForFacts(roundList); }
 
+// --- Питомцы: цена, бонус (%), способ подсказки, легендарность ---
 const REGULAR_PETS = [
-  { emoji: '🐱', price: 50 },
-  { emoji: '🐶', price: 120 },
-  { emoji: '🐉', price: 250 },
-  { emoji: '🦄', price: 400 },
+  { emoji: '🐱', price: 70,  bonus: 1,  hint: 'frame' },
+  { emoji: '🐶', price: 150, bonus: 10, hint: 'neighbor' },
+  { emoji: '🐉', price: 220, bonus: 15, hint: 'skip' },
+  { emoji: '🦄', price: 400, bonus: 20, hint: 'add' },
 ];
 const LEGENDARY_PETS = [
-  { emoji: '🦖', price: 1200 },
-  { emoji: '🐲', price: 2500 },
-  { emoji: '👑', price: 5000 },
+  { emoji: '🦖', price: 5000,  bonus: 50,  hint: 'five', legendary: true },
+  { emoji: '🐲', price: 7000,  bonus: 75,  hint: 'ten',  legendary: true },
+  { emoji: '🦅', price: 12000, bonus: 150, hint: 'half', legendary: true },
 ];
 const ALL_PETS = REGULAR_PETS.concat(LEGENDARY_PETS);
 const petByEmoji = {};
 ALL_PETS.forEach(p => { petByEmoji[p.emoji] = p; });
-// бонус к награде = доля от цены (чем дороже питомец, тем больше; легендарные — огромный)
-function petBonusPct(price) { return Math.round(price / 10); }   // 50→5%, 400→40%, 5000→500%
+function petLevel(emoji) { return ALL_PETS.findIndex(p => p.emoji === emoji) + 1; }
 function petBonusMultiplier() {
-  let pct = 0;
-  ownedPets.forEach(e => { if (petByEmoji[e]) pct += petByEmoji[e].price / 1000; });
-  return 1 + pct;
+  return (bonusPet && petByEmoji[bonusPet]) ? (1 + petByEmoji[bonusPet].bonus / 100) : 1;
 }
+
 const CELEBS = [
   { emoji: '🎉', price: 0 },
   { emoji: '✨', price: 40 },
@@ -62,6 +58,7 @@ const STR = {
     winCorrectLbl: 'Верных ответов:',
     randName: 'Случайный набор', randTap: 'нажми',
     dictName: 'Диктант', dictControl: 'контрольная', dictLocked: 'сначала поучись',
+    dictPrompt: 'Сколько примеров? (мин. 15, выучено {n})',
     fbMastered: '✅ Верно! Выучено! ({a}×{b}={r})',
     fbStreak: '✅ Верно! Подряд: {s}/{n} (осталось {left})',
     fbWrong: '❌ Неверно. {a}×{b}={r}. Счётчик сброшен.',
@@ -77,10 +74,15 @@ const STR = {
     winDictTitle: '🎉 Диктант сдан!', winDictText: 'Ты прошёл диктант без ошибок!',
     rightAns: 'верно: {r}', coinsPlus: '+{n} евро', currency: 'евро',
     shopBtn: '🛒 Магазин', shopTitle: '🛒 Магазин', petsTitle: 'Питомцы',
-    petsHint: 'Питомцы сидят рядом, дают подсказку и бонус евро (можно несколько).',
+    petsHint: 'Питомцы сидят рядом. Выбери одного на «Бонус» и другого на «Подсказки».',
     petsOwned: 'У тебя питомцев: {n}', legendaryTitle: 'Легендарные питомцы', celebsTitle: 'Праздники победы',
-    buy: 'Купить', active: 'Активно', select: 'Выбрать', notEnough: 'Мало монет', free: 'бесплатно',
-    petHint: '{e} подсказка: {a}×{b} = {sum}',
+    buy: 'Купить', notEnough: 'Мало монет', free: 'бесплатно', active: 'Активно', select: 'Выбрать',
+    roleBonus: 'Бонус', roleHint: 'Подсказки', oneRole: 'Одному питомцу — одна роль',
+    hintLvl: '💡 ур.{n}',
+    petHint: '{e} {a}×{b}: {sum}',
+    h_frame: 'возьми {b}, {a} раз',
+    trick_zero: 'взять 0 раз → 0', trick_one: 'само число → {r}',
+    trick_ten: 'припиши ноль → {r}', trick_eleven: 'цифру два раза → {r}',
     customTitle: 'Свой выбор', customHint: 'Отметь, что хочешь тренировать:',
     chooseAtLeastOne: 'Отметь хотя бы одно!', finishCustom: '🎉 Готово!', learnedX: 'выучено {d}/{t}',
     done: '✓ готово',
@@ -95,6 +97,7 @@ const STR = {
     winCorrectLbl: 'Goede antwoorden:',
     randName: 'Willekeurige set', randTap: 'klik',
     dictName: 'Dictee', dictControl: 'toets', dictLocked: 'leer eerst iets',
+    dictPrompt: 'Hoeveel sommen? (min. 15, geleerd {n})',
     fbMastered: '✅ Goed! Geleerd! ({a}×{b}={r})',
     fbStreak: '✅ Goed! Op rij: {s}/{n} (nog {left})',
     fbWrong: '❌ Fout. {a}×{b}={r}. Teller terug naar nul.',
@@ -110,10 +113,15 @@ const STR = {
     winDictTitle: '🎉 Dictee gehaald!', winDictText: 'Je hebt het dictee zonder fouten gedaan!',
     rightAns: 'goed: {r}', coinsPlus: '+{n} euro', currency: 'euro',
     shopBtn: '🛒 Winkel', shopTitle: '🛒 Winkel', petsTitle: 'Huisdieren',
-    petsHint: 'Huisdieren zitten naast je, geven een hint en bonus-euro (meerdere kan).',
+    petsHint: 'Huisdieren zitten naast je. Kies één voor «Bonus» en één voor «Hints».',
     petsOwned: 'Jouw huisdieren: {n}', legendaryTitle: 'Legendarische huisdieren', celebsTitle: 'Overwinningsfeestjes',
-    buy: 'Kopen', active: 'Actief', select: 'Kiezen', notEnough: 'Te weinig munten', free: 'gratis',
-    petHint: '{e} hint: {a}×{b} = {sum}',
+    buy: 'Kopen', notEnough: 'Te weinig munten', free: 'gratis', active: 'Actief', select: 'Kiezen',
+    roleBonus: 'Bonus', roleHint: 'Hints', oneRole: 'Eén huisdier, één rol',
+    hintLvl: '💡 niv.{n}',
+    petHint: '{e} {a}×{b}: {sum}',
+    h_frame: 'neem {b}, {a} keer',
+    trick_zero: '0 keer nemen → 0', trick_one: 'het getal zelf → {r}',
+    trick_ten: 'zet er 0 achter → {r}', trick_eleven: 'cijfer twee keer → {r}',
     customTitle: 'Eigen keuze', customHint: 'Vink aan wat je wilt oefenen:',
     chooseAtLeastOne: 'Kies er minstens één!', finishCustom: '🎉 Klaar!', learnedX: 'geleerd {d}/{t}',
     done: '✓ klaar',
@@ -128,6 +136,7 @@ const STR = {
     winCorrectLbl: 'Correct answers:',
     randName: 'Random set', randTap: 'click',
     dictName: 'Dictation', dictControl: 'test', dictLocked: 'learn first',
+    dictPrompt: 'How many problems? (min 15, learned {n})',
     fbMastered: '✅ Correct! Learned! ({a}×{b}={r})',
     fbStreak: '✅ Correct! In a row: {s}/{n} ({left} left)',
     fbWrong: '❌ Wrong. {a}×{b}={r}. Counter reset.',
@@ -143,10 +152,15 @@ const STR = {
     winDictTitle: '🎉 Dictation passed!', winDictText: 'You passed the dictation with no mistakes!',
     rightAns: 'correct: {r}', coinsPlus: '+{n} euro', currency: 'euro',
     shopBtn: '🛒 Shop', shopTitle: '🛒 Shop', petsTitle: 'Pets',
-    petsHint: 'Pets sit with you, give a hint and bonus euros (you can have several).',
+    petsHint: 'Pets sit with you. Pick one for «Bonus» and another for «Hints».',
     petsOwned: 'Your pets: {n}', legendaryTitle: 'Legendary pets', celebsTitle: 'Victory celebrations',
-    buy: 'Buy', active: 'Active', select: 'Select', notEnough: 'Not enough coins', free: 'free',
-    petHint: '{e} hint: {a}×{b} = {sum}',
+    buy: 'Buy', notEnough: 'Not enough coins', free: 'free', active: 'Active', select: 'Select',
+    roleBonus: 'Bonus', roleHint: 'Hints', oneRole: 'One pet, one role',
+    hintLvl: '💡 lvl {n}',
+    petHint: '{e} {a}×{b}: {sum}',
+    h_frame: 'take {b}, {a} times',
+    trick_zero: 'take 0 times → 0', trick_one: 'the number itself → {r}',
+    trick_ten: 'append a zero → {r}', trick_eleven: 'the digit twice → {r}',
     customTitle: 'Your choice', customHint: 'Check what you want to practice:',
     chooseAtLeastOne: 'Pick at least one!', finishCustom: '🎉 Done!', learnedX: 'learned {d}/{t}',
     done: '✓ done',
@@ -165,7 +179,7 @@ const factByKey = {};
 function key(a, b) { return a + 'x' + b; }
 for (let a = MIN; a <= MAX; a++) {
   for (let b = MIN; b <= MAX; b++) {
-    const f = { a, b, streak: 0, mastered: false };
+    const f = { a, b, streak: 0, mastered: false, wrong: 0, mt: 0 };
     facts.push(f);
     factByKey[key(a, b)] = f;
   }
@@ -174,9 +188,11 @@ function twin(f) { return factByKey[key(f.b, f.a)]; }
 
 // --- Состояние ---
 let coins = 0;
-let ownedPets = [];           // список emoji (можно несколько и повторы)
-let celebration = '🎉';       // активный праздник
-let ownedCelebs = ['🎉'];     // купленные праздники
+let ownedPets = [];           // список emoji (коллекция, можно повторы)
+let bonusPet = null;          // emoji питомца, дающего бонус
+let hintPet = null;           // emoji питомца, дающего подсказки
+let celebration = '🎉';
+let ownedCelebs = ['🎉'];
 let mode = null;              // 'session' | 'dictTest' | null
 let session = null;
 let dict = null;
@@ -216,6 +232,11 @@ const el = {
   randomRerollBtn: document.getElementById('randomRerollBtn'),
   randomStartBtn: document.getElementById('randomStartBtn'),
   randomBackBtn: document.getElementById('randomBackBtn'),
+  dictScreen: document.getElementById('dict-screen'),
+  dictPrompt: document.getElementById('dictPrompt'),
+  dictCount: document.getElementById('dictCount'),
+  dictStartBtn: document.getElementById('dictStartBtn'),
+  dictBackBtn: document.getElementById('dictBackBtn'),
   gameScreen: document.getElementById('game-screen'),
   backBtn: document.getElementById('backBtn'),
   levelTitle: document.getElementById('levelTitle'),
@@ -250,7 +271,15 @@ const el = {
   petCompanion: document.getElementById('petCompanion'),
 };
 
-function updatePet() { el.petCompanion.textContent = ownedPets.join(''); }
+// питомцы сидят рядом; над бонусным/подсказочным — подпись
+function updatePet() {
+  el.petCompanion.innerHTML = ownedPets.map(e => {
+    let role = '';
+    if (e === bonusPet) role = t('roleBonus');
+    else if (e === hintPet) role = t('roleHint');
+    return `<span class="pet-one">${role ? `<span class="pet-label">${role}</span>` : ''}${e}</span>`;
+  }).join('');
+}
 
 el.overallTotal.textContent = facts.length;
 
@@ -259,6 +288,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(elm => { elm.textContent = t(elm.getAttribute('data-i18n')); });
   if (!paused) el.pauseBtn.textContent = t('pause');
+  updatePet();
   renderMenu();
 }
 function setLang(l) {
@@ -283,8 +313,8 @@ el.answer.addEventListener('input', updateSubmitState);
 // --- Сохранение ---
 const SAVE_KEY = 'mult_progress';
 function saveState() {
-  const data = { facts: {}, coins: coins, pets: ownedPets, celeb: celebration, owned: ownedCelebs };
-  facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered }; });
+  const data = { facts: {}, coins, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
+  facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
 function loadState() {
@@ -292,23 +322,24 @@ function loadState() {
   try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { data = null; }
   if (!data) return;
   coins = data.coins || 0;
-  ownedPets = data.pets || (data.pet ? [data.pet] : []);  // миграция со старого формата
+  ownedPets = data.pets || (data.pet ? [data.pet] : []);
+  bonusPet = data.bonusPet || null;
+  hintPet = data.hintPet || null;
   celebration = data.celeb || '🎉';
   ownedCelebs = data.owned || ['🎉'];
   if (ownedCelebs.indexOf('🎉') === -1) ownedCelebs.push('🎉');
   if (data.facts) {
     facts.forEach(f => {
       const s = data.facts[key(f.a, f.b)];
-      if (s) { f.streak = s.s || 0; f.mastered = !!s.m; }
+      if (s) { f.streak = s.s || 0; f.mastered = !!s.m; f.wrong = s.w || 0; f.mt = s.mt || 0; }
     });
   }
 }
-// одноразовая починка: вернуть 306 евро и убрать питомцев (баг с невозвратом за Единорога)
+// одноразовая починка: 306 евро и без питомцев (баг с невозвратом за Единорога)
 function applyOneTimeFix() {
   try {
     if (localStorage.getItem('mult_fix_306')) return;
-    coins = 306;
-    ownedPets = [];
+    coins = 306; ownedPets = []; bonusPet = null; hintPet = null;
     localStorage.setItem('mult_fix_306', '1');
     saveState();
   } catch (e) { /* нет доступа */ }
@@ -333,18 +364,69 @@ function shuffle(arr) {
 }
 function overallMastered() { return facts.filter(f => f.mastered).length; }
 function masteredFacts() { return facts.filter(f => f.mastered); }
+function factsByFactorsList(factors) { return facts.filter(f => factors.includes(f.a)); }
 
 function fmtTotal(ms) { return Math.round(ms / 1000); }
 function fmtAvg(ms, n) { return n ? (Math.round((ms / n) / 100) / 10) : 0; }
 function timeLine(ms, n) { return n ? t('timeLine', { tot: fmtTotal(ms), avg: fmtAvg(ms, n) }) : ''; }
 
-// --- Меню ---
+// =================== ПОДСКАЗКИ ===================
+function methodStr(method, a, b) {
+  const r = a * b;
+  if (method === 'frame') return t('h_frame', { a: a, b: b });
+  if (method === 'neighbor') {
+    if (b >= 2) return `${a}×${b - 1}=${a * (b - 1)}, +${a}`;
+    if (a >= 2) return `${a - 1}×${b}=${(a - 1) * b}, +${b}`;
+    return t('h_frame', { a, b });
+  }
+  if (method === 'skip') {
+    if (a === 0 || b === 0) return '0';
+    const seq = []; for (let i = 1; i <= a; i++) seq.push(i * b); return seq.join(', ');
+  }
+  if (method === 'add') {
+    if (a === 0 || b === 0) return '0';
+    const parts = []; for (let i = 0; i < a; i++) parts.push(b); return parts.join('+') + ' = ' + r;
+  }
+  if (method === 'five') {
+    if (b >= 6) return `${a}×5 + ${a}×${b - 5} = ${a * 5}+${a * (b - 5)} = ${r}`;
+    if (a >= 6) return `5×${b} + ${a - 5}×${b} = ${5 * b}+${(a - 5) * b} = ${r}`;
+    return methodStr('add', a, b);
+  }
+  if (method === 'ten') {
+    if (b >= 6 && b <= 9) return `${a}×10 − ${a}×${10 - b} = ${a * 10}−${a * (10 - b)} = ${r}`;
+    if (a >= 6 && a <= 9) return `10×${b} − ${10 - a}×${b} = ${10 * b}−${(10 - a) * b} = ${r}`;
+    return methodStr('add', a, b);
+  }
+  if (method === 'half') {
+    if (b % 2 === 0 && b > 0) return `${a}×${b / 2} + ${a}×${b / 2} = ${a * (b / 2)}+${a * (b / 2)} = ${r}`;
+    if (a % 2 === 0 && a > 0) return `${a / 2}×${b} + ${a / 2}×${b} = ${(a / 2) * b}+${(a / 2) * b} = ${r}`;
+    return methodStr('neighbor', a, b);
+  }
+  return t('h_frame', { a, b });
+}
+// трюк (только легендарные); возвращает строку или null
+function trickStr(a, b) {
+  const r = a * b;
+  if (a === 0 || b === 0) return t('trick_zero');
+  if (a === 1 || b === 1) return t('trick_one', { r });
+  if (a === 10 || b === 10) return t('trick_ten', { r });
+  const other = a === 11 ? b : (b === 11 ? a : null);
+  if (other !== null && other >= 1 && other <= 9) return t('trick_eleven', { r });
+  return null;
+}
+function hintBody(emoji, a, b) {
+  const pet = petByEmoji[emoji];
+  if (!pet) return methodStr('add', a, b);
+  if (pet.legendary) { const tr = trickStr(a, b); if (tr) return tr; }
+  return methodStr(pet.hint, a, b);
+}
+
+// =================== МЕНЮ ===================
 function renderMenu() {
   el.overallMastered.textContent = overallMastered();
   updateBalances();
   el.levelButtons.innerHTML = '';
 
-  // случайный набор
   const randBtn = document.createElement('button');
   randBtn.type = 'button';
   randBtn.className = 'level-btn';
@@ -353,7 +435,6 @@ function renderMenu() {
   randBtn.addEventListener('click', showRandom);
   el.levelButtons.appendChild(randBtn);
 
-  // свой выбор (считается в прогресс)
   const customBtn = document.createElement('button');
   customBtn.type = 'button';
   const cDone = overallMastered();
@@ -364,14 +445,13 @@ function renderMenu() {
   customBtn.addEventListener('click', showCustom);
   el.levelButtons.appendChild(customBtn);
 
-  // диктант
   const dictBtn = document.createElement('button');
   dictBtn.type = 'button';
   dictBtn.className = 'level-btn';
   if (overallMastered() > 0) {
     dictBtn.innerHTML = `<span class="lvl-name">📝</span><span class="lvl-sub">${t('dictName')}</span>` +
       `<span class="lvl-progress">${t('dictControl')}</span>`;
-    dictBtn.addEventListener('click', startDictation);
+    dictBtn.addEventListener('click', showDictSetup);
   } else {
     dictBtn.classList.add('locked');
     dictBtn.innerHTML = `<span class="lvl-name">🔒</span><span class="lvl-sub">${t('dictName')}</span>` +
@@ -386,6 +466,7 @@ function hideAllScreens() {
   el.shopScreen.classList.add('hidden');
   el.customScreen.classList.add('hidden');
   el.randomScreen.classList.add('hidden');
+  el.dictScreen.classList.add('hidden');
   el.gameScreen.classList.add('hidden');
   el.resultsScreen.classList.add('hidden');
   el.winScreen.classList.add('hidden');
@@ -411,29 +492,36 @@ function showShop() {
 }
 function shopMsg(text) {
   el.shopMessage.textContent = text;
-  setTimeout(() => { if (el.shopMessage.textContent === text) el.shopMessage.textContent = ''; }, 1200);
+  setTimeout(() => { if (el.shopMessage.textContent === text) el.shopMessage.textContent = ''; }, 1400);
 }
 function petCard(p, container) {
   const count = ownedPets.filter(e => e === p.emoji).length;
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.className = 'shop-item' + (count > 0 ? ' active' : '');
-  b.innerHTML = `<span class="shop-emoji">${p.emoji}${count > 1 ? '<span class="pet-count">×' + count + '</span>' : ''}</span>` +
-    `<span class="shop-price">${p.price} ${t('currency')}</span>` +
-    `<span class="shop-bonus">+${petBonusPct(p.price)}%</span>`;
-  b.addEventListener('click', () => buyPet(p));
-  container.appendChild(b);
+  const owned = count > 0;
+  const card = document.createElement('div');
+  card.className = 'shop-item' + (owned ? ' owned' : '');
+  card.innerHTML =
+    `<span class="shop-emoji">${p.emoji}${count > 1 ? '<span class="pet-count">×' + count + '</span>' : ''}</span>` +
+    `<span class="shop-bonus">+${p.bonus}%</span>` +
+    `<span class="shop-hint">${t('hintLvl', { n: petLevel(p.emoji) })}</span>` +
+    `<button type="button" class="buy-btn">${t('buy')} · ${p.price} ${t('currency')}</button>` +
+    (owned ? `<div class="role-row">
+        <button type="button" class="role-btn role-bonus${bonusPet === p.emoji ? ' on' : ''}">${t('roleBonus')}</button>
+        <button type="button" class="role-btn role-hint${hintPet === p.emoji ? ' on' : ''}">${t('roleHint')}</button>
+      </div>` : '');
+  card.querySelector('.buy-btn').addEventListener('click', () => buyPet(p));
+  if (owned) {
+    card.querySelector('.role-bonus').addEventListener('click', () => setRole('bonus', p.emoji));
+    card.querySelector('.role-hint').addEventListener('click', () => setRole('hint', p.emoji));
+  }
+  container.appendChild(card);
 }
 function renderShop() {
   updateBalances();
   el.petsOwned.textContent = t('petsOwned', { n: ownedPets.length });
-  // обычные питомцы
   el.shopPets.innerHTML = '';
   REGULAR_PETS.forEach(p => petCard(p, el.shopPets));
-  // легендарные питомцы
   el.shopLegendary.innerHTML = '';
   LEGENDARY_PETS.forEach(p => petCard(p, el.shopLegendary));
-  // праздники
   el.shopCelebs.innerHTML = '';
   CELEBS.forEach(c => {
     const owned = ownedCelebs.indexOf(c.emoji) !== -1;
@@ -452,10 +540,19 @@ function renderShop() {
 function buyPet(p) {
   if (coins < p.price) { shopMsg(t('notEnough')); return; }
   coins -= p.price;
-  ownedPets.push(p.emoji);   // можно покупать несколько, в т.ч. одного и того же
-  updatePet();
-  saveState();
-  renderShop();
+  ownedPets.push(p.emoji);
+  updatePet(); saveState(); renderShop();
+}
+// роль (bonus/hint) у РАЗНЫХ питомцев
+function setRole(role, emoji) {
+  if (role === 'bonus') {
+    if (hintPet === emoji) { shopMsg(t('oneRole')); return; }
+    bonusPet = (bonusPet === emoji) ? null : emoji;
+  } else {
+    if (bonusPet === emoji) { shopMsg(t('oneRole')); return; }
+    hintPet = (hintPet === emoji) ? null : emoji;
+  }
+  updatePet(); saveState(); renderShop();
 }
 function pickCeleb(c) {
   const owned = ownedCelebs.indexOf(c.emoji) !== -1;
@@ -465,8 +562,7 @@ function pickCeleb(c) {
     ownedCelebs.push(c.emoji);
   }
   celebration = c.emoji;
-  saveState();
-  renderShop();
+  saveState(); renderShop();
 }
 
 // =================== СВОЙ ВЫБОР ===================
@@ -498,8 +594,7 @@ function startCustom() {
     kind: 'custom', temp: true, progress: true,
     targets: factsByFactorsList(chosen),
     reward: rewardForFacts(factsByFactorsList(chosen)),
-    title: t('customTitle'),
-    finishTitle: t('finishCustom'),
+    title: t('customTitle'), finishTitle: t('finishCustom'),
   });
 }
 
@@ -524,7 +619,6 @@ function startRandomSet() {
     finishTitle: t('finishRandom'),
   });
 }
-function factsByFactorsList(factors) { return facts.filter(f => factors.includes(f.a)); }
 
 // =================== СЕАНС ===================
 function startSession(opts) {
@@ -532,8 +626,7 @@ function startSession(opts) {
     kind: opts.kind, targets: opts.targets, temp: !!opts.temp, progress: !!opts.progress,
     need: opts.need || NEED_STREAK, title: opts.title,
     finishTitle: opts.finishTitle || t('finishRandom'), reward: opts.reward || 0,
-    streak: {}, log: [], timeMs: 0, answers: 0,
-    wrongTotal: 0, hintUsed: false,
+    streak: {}, log: [], timeMs: 0, answers: 0, wrongTotal: 0, hintUsed: false,
   };
   mode = 'session';
   paused = false;
@@ -548,15 +641,6 @@ function startSession(opts) {
   el.gameScreen.classList.remove('hidden');
   updateSessionStats();
   nextSessionQuestion();
-}
-
-// пример как повторное сложение (для подсказки питомца): 7×8 → 8+8+…=56
-function repeatedAddition(a, b) {
-  const count = Math.min(a, b), val = Math.max(a, b);
-  if (count === 0) return '0';
-  const parts = [];
-  for (let i = 0; i < count; i++) parts.push(val);
-  return parts.join('+') + ' = ' + (a * b);
 }
 
 function sessionDone(f) { return session.temp ? (session.streak[key(f.a, f.b)] || 0) >= session.need : f.mastered; }
@@ -590,8 +674,10 @@ function submitSession() {
   const raw = el.answer.value.trim();
   if (raw === '') return;
   answering = false;
-  session.timeMs += Date.now() - qStartTime;
+  const elapsed = Date.now() - qStartTime;
+  session.timeMs += elapsed;
   session.answers++;
+  current.mt = Math.max(current.mt, elapsed);
 
   const value = parseInt(raw, 10);
   const right = current.a * current.b;
@@ -609,15 +695,15 @@ function submitSession() {
     if (s >= session.need) flash(t('fbMastered', { a: current.a, b: current.b, r: right }), 'ok');
     else flash(t('fbStreak', { s: s, n: session.need, left: session.need - s }), 'ok');
   } else {
+    current.wrong++;
     if (session.temp) session.streak[key(current.a, current.b)] = 0;
     else current.streak = 0;
     if (session.progress && !current.mastered) current.streak = 0;
-    // питомец: один раз за заход, на 2-й ошибке — подсказка (только в обучении)
     session.wrongTotal++;
     const lesson = (session.kind === 'random' || session.kind === 'custom');
-    if (ownedPets.length > 0 && lesson && !session.hintUsed && session.wrongTotal >= 2) {
+    if (hintPet && lesson && !session.hintUsed && session.wrongTotal >= 2) {
       session.hintUsed = true;
-      flash(t('petHint', { e: ownedPets[0], a: current.a, b: current.b, sum: repeatedAddition(current.a, current.b) }), 'ok', 2000);
+      flash(t('petHint', { e: hintPet, a: current.a, b: current.b, sum: hintBody(hintPet, current.a, current.b) }), 'ok', 3333);
     } else {
       flash(t('fbWrong', { a: current.a, b: current.b, r: right }), 'bad');
     }
@@ -639,10 +725,48 @@ function finishSession() {
 }
 
 // =================== ДИКТАНТ ===================
+function showDictSetup() {
+  const learned = masteredFacts().length;
+  if (learned === 0) { showMenu(t('dictNeedLevelShort')); return; }
+  el.dictPrompt.textContent = t('dictPrompt', { n: learned });
+  el.dictCount.value = learned >= 15 ? Math.min(20, learned) : 15;
+  hideAllScreens();
+  el.dictScreen.classList.remove('hidden');
+}
+// подбор примеров: сначала ошибочные, потом медленные, потом сложные; добивка повторами
+function selectDictExamples(N) {
+  const learned = masteredFacts();
+  const wrongPool = learned.filter(f => f.wrong > 0).sort((x, y) => y.wrong - x.wrong);
+  let chosen;
+  if (wrongPool.length >= N) {
+    chosen = wrongPool.slice(0, N);
+  } else {
+    chosen = wrongPool.slice();
+    const slow = learned.filter(f => f.wrong === 0 && f.mt > SLOW_MS).sort((x, y) => y.mt - x.mt);
+    for (const f of slow) { if (chosen.length >= N) break; chosen.push(f); }
+    if (chosen.length < N) {
+      const rest = learned.filter(f => chosen.indexOf(f) === -1)
+        .sort((x, y) => factValue(y.a, y.b) - factValue(x.a, x.b)); // сложные вперёд
+      for (const f of rest) { if (chosen.length >= N) break; chosen.push(f); }
+    }
+    // если выучено меньше N — добиваем повторами самых ошибочных (или любых)
+    const pad = wrongPool.length ? wrongPool : learned;
+    let i = 0;
+    while (chosen.length < N && pad.length) { chosen.push(pad[i % pad.length]); i++; }
+  }
+  return shuffle(chosen);
+}
 function startDictation() {
-  dict = { roundList: masteredFacts(), timeMs: 0, answers: 0, correct: 0, wrong: 0 };
-  if (dict.roundList.length === 0) { showMenu(t('dictNeedLevelShort')); return; }
-  dict.reward = dictationReward(dict.roundList);
+  const learnedCount = masteredFacts().length;
+  if (learnedCount === 0) { showMenu(t('dictNeedLevelShort')); return; }
+  let N = parseInt(el.dictCount.value, 10);
+  if (isNaN(N) || N < 15) N = 15;
+  if (learnedCount >= 15 && N > learnedCount) N = learnedCount;
+  if (learnedCount < 15) N = 15;
+  const chosen = selectDictExamples(N);
+  dict = { timeMs: 0, answers: 0, correct: 0, wrong: 0 };
+  dict.roundList = chosen;
+  dict.reward = rewardForFacts([...new Set(chosen)]);
   beginDictRound(t('dictTitle'));
 }
 function beginDictRound(title) {
@@ -682,9 +806,11 @@ function submitDict() {
   const raw = el.answer.value.trim();
   if (raw === '') return;
   answering = false;
-  dict.timeMs += Date.now() - qStartTime;
+  const elapsed = Date.now() - qStartTime;
+  dict.timeMs += elapsed;
   dict.answers++;
   dict.answered++;
+  current.mt = Math.max(current.mt, elapsed);
   const value = parseInt(raw, 10);
   const right = current.a * current.b;
   if (value === right) {
@@ -692,11 +818,13 @@ function submitDict() {
     flash(t('dictCorrect'), 'ok', 500);
   } else {
     dict.wrong++;
+    current.wrong++;
     dict.mistakes.add(key(current.a, current.b));
     const tw = twin(current);
     if (tw) dict.mistakes.add(key(tw.a, tw.b));
     flash(t('dictRemember', { a: current.a, b: current.b, r: right }), 'bad');
   }
+  saveState();
   updateDictStats();
 }
 function endDictRound() {
@@ -837,6 +965,8 @@ el.winMenuBtn.addEventListener('click', () => showMenu());
 el.randomBackBtn.addEventListener('click', () => showMenu());
 el.randomRerollBtn.addEventListener('click', rollRandom);
 el.randomStartBtn.addEventListener('click', startRandomSet);
+el.dictBackBtn.addEventListener('click', () => showMenu());
+el.dictStartBtn.addEventListener('click', startDictation);
 el.shopBtn.addEventListener('click', showShop);
 el.shopBackBtn.addEventListener('click', () => showMenu());
 el.customBackBtn.addEventListener('click', () => showMenu());

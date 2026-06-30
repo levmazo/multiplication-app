@@ -330,19 +330,46 @@ button:disabled {
 .shop-emoji .pet-count { font-size: 0.8rem; font-weight: 800; vertical-align: super; }
 .shop-price { font-size: 0.78rem; opacity: 0.95; }
 .shop-bonus { font-size: 0.72rem; font-weight: 800; color: #fde047; }
+.shop-hint { font-size: 0.66rem; opacity: 0.9; }
 .pets-owned { font-size: 0.95rem; font-weight: 700; margin: 0 0 8px; opacity: 0.95; }
+.shop-item .buy-btn {
+  width: 100%; font-size: 0.72rem; padding: 6px 4px; margin-top: 2px;
+  background: #fbbf24; color: #1e293b; border: none; border-radius: 8px; font-weight: 700;
+}
+.role-row { display: flex; gap: 4px; width: 100%; }
+.role-btn {
+  flex: 1; font-size: 0.66rem; padding: 5px 2px; border: none; border-radius: 7px;
+  background: rgba(255, 255, 255, 0.18); color: #fff; font-weight: 700;
+}
+.role-btn.on.role-bonus { background: #fde047; color: #1e293b; }
+.role-btn.on.role-hint { background: #38bdf8; color: #08233a; }
 
+/* питомцы сидят полоской внизу экрана (под кнопками, ничего не перекрывают) */
 .pet-companion {
   position: fixed;
-  right: 14px;
-  bottom: 14px;
-  font-size: 2.6rem;
-  z-index: 20;
-  pointer-events: none;
-  animation: petbob 1.2s ease-in-out infinite alternate;
+  left: 0; right: 0; bottom: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end;
+  gap: 2px 6px; padding: 4px 6px;
+  max-height: 24vh; overflow: hidden;
+  pointer-events: none; z-index: 5;
+  background: linear-gradient(to top, rgba(0,0,0,0.25), rgba(0,0,0,0));
 }
 .pet-companion:empty { display: none; }
-@keyframes petbob { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+.pet-one {
+  display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
+  font-size: 1.5rem;
+}
+.pet-label {
+  font-size: 0.5rem; font-weight: 800; padding: 1px 4px; border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5); margin-bottom: 1px; white-space: nowrap;
+}
+
+/* поле ввода числа примеров на экране диктанта */
+#dict-screen input {
+  width: 130px; padding: 12px; font-size: 1.6rem; text-align: center;
+  border: none; border-radius: 12px; margin: 6px 0 16px;
+}
+#dict-screen button[type="button"]#dictStartBtn { /* кнопка по умолчанию */ }
 
 .celeb-fx { font-size: 1.8rem; min-height: 1.6em; letter-spacing: 4px; }
 .cfx { display: inline-block; animation: cfxb 0.6s ease infinite alternate; }

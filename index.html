@@ -61,6 +61,15 @@
     <button id="randomStartBtn" type="button" data-i18n="start">Начать</button>
   </main>
 
+  <!-- ЭКРАН ДИКТАНТА (выбор длины) -->
+  <main id="dict-screen" class="hidden">
+    <button id="dictBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 data-i18n="dictName">Диктант</h1>
+    <p class="hint" id="dictPrompt"></p>
+    <input type="number" id="dictCount" inputmode="numeric" min="15">
+    <button id="dictStartBtn" type="button" data-i18n="start">Начать</button>
+  </main>
+
   <!-- ИГРОВОЙ ЭКРАН -->
   <main id="game-screen" class="hidden">
     <button id="backBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
