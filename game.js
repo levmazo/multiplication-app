@@ -86,8 +86,6 @@ const STR = {
     customTitle: 'Свой выбор', customHint: 'Отметь, что хочешь тренировать:',
     chooseAtLeastOne: 'Отметь хотя бы одно!', finishCustom: '🎉 Готово!', learnedX: 'выучено {d}/{t}',
     done: '✓ готово',
-    timerOnLbl: '⏱ Таймер: вкл', timerOffLbl: '⏱ Таймер: выкл', skippedLbl: 'Не успел:',
-    fbTimeout: '⏰ Не успел! {a}×{b}={r}',
   },
   nl: {
     langBtn: '⚙ Language', menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
@@ -127,8 +125,6 @@ const STR = {
     customTitle: 'Eigen keuze', customHint: 'Vink aan wat je wilt oefenen:',
     chooseAtLeastOne: 'Kies er minstens één!', finishCustom: '🎉 Klaar!', learnedX: 'geleerd {d}/{t}',
     done: '✓ klaar',
-    timerOnLbl: '⏱ Timer: aan', timerOffLbl: '⏱ Timer: uit', skippedLbl: 'Niet gehaald:',
-    fbTimeout: '⏰ Te laat! {a}×{b}={r}',
   },
   en: {
     langBtn: '⚙ Language', menuTitle: '✖️ Multiplication table', learnedTotal: 'Learned in total:',
@@ -168,8 +164,6 @@ const STR = {
     customTitle: 'Your choice', customHint: 'Check what you want to practice:',
     chooseAtLeastOne: 'Pick at least one!', finishCustom: '🎉 Done!', learnedX: 'learned {d}/{t}',
     done: '✓ done',
-    timerOnLbl: '⏱ Timer: on', timerOffLbl: '⏱ Timer: off', skippedLbl: "Didn't make it:",
-    fbTimeout: "⏰ Time's up! {a}×{b}={r}",
   },
 };
 let lang = 'ru';
@@ -194,8 +188,6 @@ function twin(f) { return factByKey[key(f.b, f.a)]; }
 
 // --- Состояние ---
 let coins = 0;
-let timerOn = false;          // включён ли таймер на ответ
-let timerRaf = null, timerDeadline = 0, timerTotal = 0;
 let ownedPets = [];           // список emoji (коллекция, можно повторы)
 let bonusPet = null;          // emoji питомца, дающего бонус
 let hintPet = null;           // emoji питомца, дающего подсказки
@@ -219,10 +211,6 @@ const el = {
   overallMastered: document.getElementById('overallMastered'),
   overallTotal: document.getElementById('overallTotal'),
   coinBalance: document.getElementById('coinBalance'),
-  timerToggle: document.getElementById('timerToggle'),
-  timerbar: document.getElementById('timerbar'),
-  timerfill: document.getElementById('timerfill'),
-  skipped: document.getElementById('skipped'),
   levelMessage: document.getElementById('levelMessage'),
   levelButtons: document.getElementById('levelButtons'),
   shopBtn: document.getElementById('shopBtn'),
@@ -325,7 +313,7 @@ el.answer.addEventListener('input', updateSubmitState);
 // --- Сохранение ---
 const SAVE_KEY = 'mult_progress';
 function saveState() {
-  const data = { facts: {}, coins, timerOn, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
+  const data = { facts: {}, coins, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
   facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
@@ -334,7 +322,6 @@ function loadState() {
   try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { data = null; }
   if (!data) return;
   coins = data.coins || 0;
-  timerOn = !!data.timerOn;
   ownedPets = data.pets || (data.pet ? [data.pet] : []);
   bonusPet = data.bonusPet || null;
   hintPet = data.hintPet || null;
@@ -382,48 +369,6 @@ function factsByFactorsList(factors) { return facts.filter(f => factors.includes
 function fmtTotal(ms) { return Math.round(ms / 1000); }
 function fmtAvg(ms, n) { return n ? (Math.round((ms / n) / 100) / 10) : 0; }
 function timeLine(ms, n) { return n ? t('timeLine', { tot: fmtTotal(ms), avg: fmtAvg(ms, n) }) : ''; }
-
-// =================== ТАЙМЕР ===================
-// сколько секунд на пример: ×0 — 1с; простые — 5с; средние — 10с; сложные — 15с;
-// диктант — 5с, но ×0 — 0,5с.
-function timeForFact(a, b, isDict) {
-  if (isDict) return (a === 0 || b === 0) ? 0.5 : 5;
-  if (a === 0 || b === 0) return 1;
-  const cat = Math.min(factorScore(a), factorScore(b));
-  return cat === 10 ? 5 : (cat === 70 ? 10 : 15);
-}
-function stopTimer() { if (timerRaf) cancelAnimationFrame(timerRaf); timerRaf = null; }
-function startTimer(sec) {
-  stopTimer();
-  if (!timerOn) { el.timerbar.classList.add('hidden'); return; }
-  el.timerbar.classList.remove('hidden');
-  timerTotal = sec * 1000;
-  timerDeadline = Date.now() + timerTotal;
-  function tick() {
-    const rem = Math.max(0, timerDeadline - Date.now());
-    el.timerfill.style.width = (rem / timerTotal * 100) + '%';
-    el.timerfill.classList.toggle('low', rem / timerTotal < 0.3);
-    if (rem <= 0) { onTimeout(); return; }
-    timerRaf = requestAnimationFrame(tick);
-  }
-  timerRaf = requestAnimationFrame(tick);
-}
-function onTimeout() {
-  stopTimer();
-  if (!answering) return;
-  answering = false;
-  if (mode === 'session') sessionTimeout();
-  else if (mode === 'dictTest') dictTimeout();
-}
-function updateTimerToggle() {
-  el.timerToggle.textContent = timerOn ? t('timerOnLbl') : t('timerOffLbl');
-  el.timerToggle.classList.toggle('on', timerOn);
-}
-function toggleTimer() {
-  timerOn = !timerOn;
-  saveState();
-  updateTimerToggle();
-}
 
 // =================== ПОДСКАЗКИ ===================
 function methodStr(method, a, b) {
@@ -480,7 +425,6 @@ function hintBody(emoji, a, b) {
 function renderMenu() {
   el.overallMastered.textContent = overallMastered();
   updateBalances();
-  updateTimerToggle();
   el.levelButtons.innerHTML = '';
 
   const randBtn = document.createElement('button');
@@ -682,14 +626,13 @@ function startSession(opts) {
     kind: opts.kind, targets: opts.targets, temp: !!opts.temp, progress: !!opts.progress,
     need: opts.need || NEED_STREAK, title: opts.title,
     finishTitle: opts.finishTitle || t('finishRandom'), reward: opts.reward || 0,
-    streak: {}, log: [], timeMs: 0, answers: 0, wrongByKey: {}, skipped: 0,
+    streak: {}, log: [], timeMs: 0, answers: 0, wrongTotal: 0, hintUsed: false,
   };
   mode = 'session';
   paused = false;
   current = null;
   el.pauseBtn.textContent = t('pause');
   el.pauseBtn.classList.remove('is-paused');
-  el.pauseBtn.classList.toggle('hidden', !timerOn);
   el.answer.disabled = false;
   el.levelTitle.textContent = session.title;
   el.feedback.textContent = ' ';
@@ -711,16 +654,7 @@ function updateSessionStats() {
   el.total.textContent = tot;
   el.correct.textContent = session.log.filter(e => e.correct).length;
   el.wrong.textContent = session.log.filter(e => !e.correct).length;
-  el.skipped.textContent = session.skipped || 0;
   el.progressfill.style.width = (tot ? (done / tot * 100) : 0) + '%';
-}
-
-// таймаут в обучении: «не успел» +1, пример не выучен (вернётся), без ошибки/подсказки
-function sessionTimeout() {
-  session.skipped = (session.skipped || 0) + 1;
-  updateSessionStats();
-  saveState();
-  flash(t('fbTimeout', { a: current.a, b: current.b, r: current.a * current.b }), 'timeout', 1200);
 }
 
 function nextSessionQuestion() {
@@ -740,7 +674,6 @@ function submitSession() {
   const raw = el.answer.value.trim();
   if (raw === '') return;
   answering = false;
-  stopTimer();
   const elapsed = Date.now() - qStartTime;
   session.timeMs += elapsed;
   session.answers++;
@@ -766,11 +699,10 @@ function submitSession() {
     if (session.temp) session.streak[key(current.a, current.b)] = 0;
     else current.streak = 0;
     if (session.progress && !current.mastered) current.streak = 0;
-    const kk = key(current.a, current.b);
-    session.wrongByKey[kk] = (session.wrongByKey[kk] || 0) + 1;
+    session.wrongTotal++;
     const lesson = (session.kind === 'random' || session.kind === 'custom');
-    // подсказка, когда ИМЕННО этот пример ошибся 2-й раз за заход
-    if (hintPet && lesson && session.wrongByKey[kk] >= 2) {
+    if (hintPet && lesson && !session.hintUsed && session.wrongTotal >= 2) {
+      session.hintUsed = true;
       flash(t('petHint', { e: hintPet, a: current.a, b: current.b, sum: hintBody(hintPet, current.a, current.b) }), 'ok', 3333);
     } else {
       flash(t('fbWrong', { a: current.a, b: current.b, r: right }), 'bad');
@@ -832,7 +764,7 @@ function startDictation() {
   if (learnedCount >= 15 && N > learnedCount) N = learnedCount;
   if (learnedCount < 15) N = 15;
   const chosen = selectDictExamples(N);
-  dict = { timeMs: 0, answers: 0, correct: 0, wrong: 0, skipped: 0 };
+  dict = { timeMs: 0, answers: 0, correct: 0, wrong: 0 };
   dict.roundList = chosen;
   dict.reward = rewardForFacts([...new Set(chosen)]);
   beginDictRound(t('dictTitle'));
@@ -847,7 +779,6 @@ function beginDictRound(title) {
   dict.mistakes = new Set();
   el.pauseBtn.textContent = t('pause');
   el.pauseBtn.classList.remove('is-paused');
-  el.pauseBtn.classList.toggle('hidden', !timerOn);
   el.answer.disabled = false;
   el.levelTitle.textContent = title;
   el.feedback.textContent = ' ';
@@ -862,15 +793,7 @@ function updateDictStats() {
   el.total.textContent = dict.roundTotal;
   el.correct.textContent = dict.correct;
   el.wrong.textContent = dict.wrong;
-  el.skipped.textContent = dict.skipped || 0;
   el.progressfill.style.width = (dict.roundTotal ? (dict.answered / dict.roundTotal * 100) : 0) + '%';
-}
-// таймаут в диктанте: «не успел» +1, пример возвращается в очередь, без ошибки/подсказки
-function dictTimeout() {
-  dict.skipped = (dict.skipped || 0) + 1;
-  dict.queue.push(current);
-  updateDictStats();
-  flash(t('fbTimeout', { a: current.a, b: current.b, r: current.a * current.b }), 'timeout', 1200);
 }
 function nextDict() {
   if (paused) return;
@@ -883,7 +806,6 @@ function submitDict() {
   const raw = el.answer.value.trim();
   if (raw === '') return;
   answering = false;
-  stopTimer();
   const elapsed = Date.now() - qStartTime;
   dict.timeMs += elapsed;
   dict.answers++;
@@ -987,7 +909,6 @@ function renderQuestion() {
   updateSubmitState();
   el.answer.focus();
   qStartTime = Date.now();
-  startTimer(timeForFact(current.a, current.b, mode === 'dictTest'));
 }
 function advance() {
   if (mode === 'session') nextSessionQuestion();
@@ -1014,11 +935,10 @@ function togglePause() {
     paused = false;
     el.pauseBtn.textContent = t('pause');
     el.pauseBtn.classList.remove('is-paused');
-    advance(); // после паузы — другая задачка (нельзя «подумать на паузе»)
+    if (current) renderQuestion(); else advance();
   } else {
     paused = true;
     answering = false;
-    stopTimer();
     el.question.textContent = '⏸';
     el.answer.value = '';
     el.answer.disabled = true;
@@ -1049,7 +969,6 @@ el.dictBackBtn.addEventListener('click', () => showMenu());
 el.dictStartBtn.addEventListener('click', startDictation);
 el.shopBtn.addEventListener('click', showShop);
 el.shopBackBtn.addEventListener('click', () => showMenu());
-el.timerToggle.addEventListener('click', toggleTimer);
 el.customBackBtn.addEventListener('click', () => showMenu());
 el.customStartBtn.addEventListener('click', startCustom);
 el.langBtn.addEventListener('click', () => el.langMenu.classList.toggle('hidden'));

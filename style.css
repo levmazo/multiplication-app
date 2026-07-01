@@ -308,32 +308,6 @@ button:disabled {
   transition: width 0.25s ease;
 }
 
-/* полоска обратного отсчёта (таймер) */
-.timerbar {
-  height: 12px;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 18px;
-}
-#timerfill {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, #34d399, #fbbf24);
-  border-radius: 8px;
-}
-#timerfill.low { background: linear-gradient(90deg, #f87171, #ef4444); }
-
-/* кнопка таймера в меню */
-.timer-toggle {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-size: 0.9rem;
-  padding: 8px 14px;
-  margin: 0 0 12px;
-}
-.timer-toggle.on { background: #22c55e; color: #06280f; }
-
 #shop-screen h2 { font-size: 1.1rem; margin: 14px 0 4px; }
 .shop-grid {
   display: grid;
