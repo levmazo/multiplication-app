@@ -20,6 +20,7 @@
     <h1 data-i18n="menuTitle">✖️ Таблица умножения</h1>
     <p class="overall"><span data-i18n="learnedTotal">Выучено всего:</span> <span id="overallMastered">0</span> <span data-i18n="of">из</span> <span id="overallTotal">169</span></p>
     <p class="coin-balance"><span id="coinBalance">0</span></p>
+    <button id="timerToggle" class="timer-toggle" type="button">⏱</button>
     <div id="levelMessage" class="level-message"></div>
     <div id="levelButtons" class="level-grid"></div>
     <button id="shopBtn" type="button" data-i18n="shopBtn">🛒 Магазин</button>
@@ -77,10 +78,11 @@
 
     <section class="stats">
       <div class="stat-big"><span data-i18n="learned">Выучено:</span> <span id="mastered">0</span> <span data-i18n="of">из</span> <span id="total">0</span></div>
-      <div class="stat-small"><span data-i18n="correctLbl">Верно:</span> <span id="correct">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="wrong">0</span></div>
+      <div class="stat-small"><span data-i18n="correctLbl">Верно:</span> <span id="correct">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="wrong">0</span> · <span data-i18n="skippedLbl">Не успел:</span> <span id="skipped">0</span></div>
     </section>
 
     <div class="progressbar"><div id="progressfill"></div></div>
+    <div id="timerbar" class="timerbar hidden"><div id="timerfill"></div></div>
 
     <div id="question">0 × 0</div>
 
