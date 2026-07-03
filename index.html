@@ -9,20 +9,39 @@
 <body>
   <!-- ГЛАВНОЕ МЕНЮ -->
   <main id="menu-screen">
-    <div id="langWrap" class="lang-wrap">
-      <button id="langBtn" class="lang-btn" type="button" data-i18n="langBtn">⚙ Language</button>
-      <div id="langMenu" class="lang-menu hidden">
-        <button type="button" data-lang="ru">Русский</button>
-        <button type="button" data-lang="nl">Nederlands</button>
-        <button type="button" data-lang="en">English</button>
-      </div>
-    </div>
+    <button id="settingsBtn" class="lang-btn" type="button">⚙ Settings</button>
     <h1 data-i18n="menuTitle">✖️ Таблица умножения</h1>
     <p class="overall"><span data-i18n="learnedTotal">Выучено всего:</span> <span id="overallMastered">0</span> <span data-i18n="of">из</span> <span id="overallTotal">169</span></p>
     <p class="coin-balance"><span id="coinBalance">0</span></p>
     <div id="levelMessage" class="level-message"></div>
     <div id="levelButtons" class="level-grid"></div>
     <button id="shopBtn" type="button" data-i18n="shopBtn">🛒 Магазин</button>
+  </main>
+
+  <!-- НАСТРОЙКИ -->
+  <main id="settings-screen" class="hidden">
+    <button id="settingsBackBtn" class="back-btn" type="button" data-i18n="settingsBack">← Обратно</button>
+    <h1 data-i18n="settingsTitle">Settings</h1>
+    <div id="settingsRoot" class="settings-two">
+      <button id="langSection" type="button" data-i18n="langSection">Язык</button>
+      <button id="timerSection" type="button" data-i18n="timerWord">Таймер</button>
+    </div>
+    <div id="langPanel" class="settings-panel hidden">
+      <button type="button" data-lang="ru">Русский</button>
+      <button type="button" data-lang="nl">Nederlands</button>
+      <button type="button" data-lang="en">English</button>
+    </div>
+    <div id="timerPanel" class="settings-panel hidden">
+      <div class="settings-inner">
+        <span data-i18n="timerEnable">Включить таймер</span>
+        <button id="timerLamp" class="lamp" type="button" aria-label="timer"></button>
+      </div>
+      <div id="timerSecRow" class="timer-sec-row hidden">
+        <span data-i18n="timerSecPre">Таймер на</span>
+        <input type="number" id="timerSecInput" min="1" max="35" inputmode="numeric">
+        <span data-i18n="timerSecPost">секунд</span>
+      </div>
+    </div>
   </main>
 
   <!-- МАГАЗИН -->

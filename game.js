@@ -49,8 +49,10 @@ const CELEBS = [
 // =================== ПЕРЕВОДЫ ===================
 const STR = {
   ru: {
-    langBtn: '⚙ Language', menuTitle: '✖️ Таблица умножения', learnedTotal: 'Выучено всего:',
+    menuTitle: '✖️ Таблица умножения', learnedTotal: 'Выучено всего:',
     of: 'из', resetAll: 'Сбросить весь прогресс', backMenu: '← В меню',
+    settingsTitle: 'Settings', langSection: 'Язык', timerWord: 'Таймер', settingsBack: '← Обратно',
+    timerEnable: 'Включить таймер', timerSecPre: 'Таймер на', timerSecPost: 'секунд',
     randomTitle: '🎲 Случайный набор', randomHint: 'Будешь умножать на эти числа:',
     reroll: '🎲 Другие две цифры', start: 'Начать',
     learned: 'Выучено:', correctLbl: 'Верно:', wrongLbl: 'Ошибок:',
@@ -88,8 +90,10 @@ const STR = {
     done: '✓ готово',
   },
   nl: {
-    langBtn: '⚙ Language', menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
+    menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
     of: 'van', resetAll: 'Alle voortgang wissen', backMenu: '← Naar menu',
+    settingsTitle: 'Settings', langSection: 'Taal', timerWord: 'Timer', settingsBack: '← Terug',
+    timerEnable: 'Timer aan', timerSecPre: 'Timer op', timerSecPost: 'seconden',
     randomTitle: '🎲 Willekeurige set', randomHint: 'Je gaat met deze getallen vermenigvuldigen:',
     reroll: '🎲 Twee andere getallen', start: 'Starten',
     learned: 'Geleerd:', correctLbl: 'Goed:', wrongLbl: 'Fout:',
@@ -127,8 +131,10 @@ const STR = {
     done: '✓ klaar',
   },
   en: {
-    langBtn: '⚙ Language', menuTitle: '✖️ Multiplication table', learnedTotal: 'Learned in total:',
+    menuTitle: '✖️ Multiplication table', learnedTotal: 'Learned in total:',
     of: 'of', resetAll: 'Reset all progress', backMenu: '← To menu',
+    settingsTitle: 'Settings', langSection: 'Language', timerWord: 'Timer', settingsBack: '← Back',
+    timerEnable: 'Enable timer', timerSecPre: 'Timer for', timerSecPost: 'seconds',
     randomTitle: '🎲 Random set', randomHint: "You'll multiply by these numbers:",
     reroll: '🎲 Two other numbers', start: 'Start',
     learned: 'Learned:', correctLbl: 'Correct:', wrongLbl: 'Mistakes:',
@@ -188,6 +194,9 @@ function twin(f) { return factByKey[key(f.b, f.a)]; }
 
 // --- Состояние ---
 let coins = 0;
+let timerOn = false;          // включён ли таймер (пока только настройка)
+let timerSec = 5;             // секунд на пример (1..35)
+let openSection = null;       // null | 'lang' | 'timer' — открытый раздел настроек
 let ownedPets = [];           // список emoji (коллекция, можно повторы)
 let bonusPet = null;          // emoji питомца, дающего бонус
 let hintPet = null;           // emoji питомца, дающего подсказки
@@ -206,8 +215,17 @@ let msgTimer = null;
 // --- Элементы ---
 const el = {
   menuScreen: document.getElementById('menu-screen'),
-  langBtn: document.getElementById('langBtn'),
-  langMenu: document.getElementById('langMenu'),
+  settingsBtn: document.getElementById('settingsBtn'),
+  settingsScreen: document.getElementById('settings-screen'),
+  settingsBackBtn: document.getElementById('settingsBackBtn'),
+  settingsRoot: document.getElementById('settingsRoot'),
+  langSection: document.getElementById('langSection'),
+  timerSection: document.getElementById('timerSection'),
+  langPanel: document.getElementById('langPanel'),
+  timerPanel: document.getElementById('timerPanel'),
+  timerLamp: document.getElementById('timerLamp'),
+  timerSecRow: document.getElementById('timerSecRow'),
+  timerSecInput: document.getElementById('timerSecInput'),
   overallMastered: document.getElementById('overallMastered'),
   overallTotal: document.getElementById('overallTotal'),
   coinBalance: document.getElementById('coinBalance'),
@@ -294,10 +312,10 @@ function applyLang() {
 function setLang(l) {
   lang = l;
   try { localStorage.setItem('mult_lang', l); } catch (e) { /* нет доступа */ }
-  el.langMenu.classList.add('hidden');
   if (msgTimer) { clearTimeout(msgTimer); msgTimer = null; }
   el.levelMessage.textContent = '';
   applyLang();
+  renderSettings();
 }
 function loadLang() {
   try { lang = localStorage.getItem('mult_lang') || 'ru'; } catch (e) { lang = 'ru'; }
@@ -313,7 +331,7 @@ el.answer.addEventListener('input', updateSubmitState);
 // --- Сохранение ---
 const SAVE_KEY = 'mult_progress';
 function saveState() {
-  const data = { facts: {}, coins, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
+  const data = { facts: {}, coins, timerOn, timerSec, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
   facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
@@ -322,6 +340,8 @@ function loadState() {
   try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { data = null; }
   if (!data) return;
   coins = data.coins || 0;
+  timerOn = !!data.timerOn;
+  timerSec = Math.min(35, Math.max(1, data.timerSec || 5));
   ownedPets = data.pets || (data.pet ? [data.pet] : []);
   bonusPet = data.bonusPet || null;
   hintPet = data.hintPet || null;
@@ -461,8 +481,40 @@ function renderMenu() {
   el.levelButtons.appendChild(dictBtn);
 }
 
+function updateTimerUI() {
+  el.timerLamp.classList.toggle('on', timerOn);
+  el.timerSecRow.classList.toggle('hidden', !timerOn);
+  el.timerSecInput.value = timerSec;
+}
+function renderSettings() {
+  el.settingsRoot.classList.toggle('hidden', openSection !== null);
+  el.langPanel.classList.toggle('hidden', openSection !== 'lang');
+  el.timerPanel.classList.toggle('hidden', openSection !== 'timer');
+  el.settingsBackBtn.textContent = t('settingsBack');
+  updateTimerUI();
+}
+function showSettings() {
+  openSection = null;
+  renderSettings();
+  hideAllScreens();
+  el.settingsScreen.classList.remove('hidden');
+}
+function settingsBack() {
+  if (openSection !== null) { openSection = null; renderSettings(); }
+  else showMenu();
+}
+function toggleTimer() { timerOn = !timerOn; saveState(); updateTimerUI(); }
+function setTimerSec(v) {
+  let n = parseInt(v, 10);
+  if (isNaN(n) || n < 1) n = 1;
+  if (n > 35) n = 35;
+  timerSec = n;
+  el.timerSecInput.value = n;
+  saveState();
+}
 function hideAllScreens() {
   el.menuScreen.classList.add('hidden');
+  el.settingsScreen.classList.add('hidden');
   el.shopScreen.classList.add('hidden');
   el.customScreen.classList.add('hidden');
   el.randomScreen.classList.add('hidden');
@@ -971,10 +1023,15 @@ el.shopBtn.addEventListener('click', showShop);
 el.shopBackBtn.addEventListener('click', () => showMenu());
 el.customBackBtn.addEventListener('click', () => showMenu());
 el.customStartBtn.addEventListener('click', startCustom);
-el.langBtn.addEventListener('click', () => el.langMenu.classList.toggle('hidden'));
-el.langMenu.querySelectorAll('[data-lang]').forEach(b => {
+el.settingsBtn.addEventListener('click', showSettings);
+el.settingsBackBtn.addEventListener('click', settingsBack);
+el.langSection.addEventListener('click', () => { openSection = 'lang'; renderSettings(); });
+el.timerSection.addEventListener('click', () => { openSection = 'timer'; renderSettings(); });
+el.langPanel.querySelectorAll('[data-lang]').forEach(b => {
   b.addEventListener('click', () => setLang(b.getAttribute('data-lang')));
 });
+el.timerLamp.addEventListener('click', toggleTimer);
+el.timerSecInput.addEventListener('input', () => setTimerSec(el.timerSecInput.value));
 
 loadLang();
 loadState();

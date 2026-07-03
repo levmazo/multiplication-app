@@ -58,6 +58,30 @@ h1 {
   white-space: nowrap;
 }
 
+/* --- Экран настроек: две синие кнопки у краёв --- */
+#settings-screen { width: 100%; max-width: 520px; }
+.settings-two {
+  display: flex; justify-content: space-between; gap: 12px; margin-top: 48px;
+}
+.settings-two button {
+  width: 44%; padding: 26px 8px; font-size: 1.2rem;
+  background: #38bdf8; color: #08233a;
+}
+.settings-panel { margin-top: 24px; }
+#langPanel { display: flex; flex-direction: column; gap: 10px; }
+#langPanel button { background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 1.05rem; padding: 14px; }
+.settings-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 6px; font-size: 1.1rem; font-weight: 700;
+}
+.lamp {
+  width: 34px; height: 34px; border-radius: 50%; padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.5); background: #9ca3af; cursor: pointer;
+}
+.lamp.on { background: #facc15; border-color: #fde68a; box-shadow: 0 0 14px #facc15; }
+.timer-sec-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 14px 0; font-weight: 700; }
+#timerSecInput { width: 70px; padding: 10px; font-size: 1.3rem; text-align: center; border: none; border-radius: 10px; }
+
 /* --- Меню выбора уровня --- */
 .overall { font-size: 1.05rem; font-weight: 700; margin: 0 0 12px; }
 .hint { opacity: 0.85; margin: 6px 0 12px; }
@@ -286,7 +310,7 @@ button:disabled {
 }
 
 /* --- Экран победы --- */
-.hidden { display: none; }
+.hidden { display: none !important; }
 .win-stats { font-size: 1.1rem; line-height: 1.6; margin: 16px 0 24px; }
 
 /* --- Монеты, магазин, прогресс-бар, праздник --- */
