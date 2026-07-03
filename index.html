@@ -89,6 +89,12 @@
     <button id="dictStartBtn" type="button" data-i18n="start">Начать</button>
   </main>
 
+  <!-- ТАЙМЕР (над игровой карточкой) -->
+  <div id="timerwrap" class="timer-wrap hidden">
+    <div id="timerNum" class="timer-num">00:05</div>
+    <div class="timerbar"><div id="timerfill"></div></div>
+  </div>
+
   <!-- ИГРОВОЙ ЭКРАН -->
   <main id="game-screen" class="hidden">
     <button id="backBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
@@ -96,10 +102,8 @@
 
     <section class="stats">
       <div class="stat-big"><span data-i18n="learned">Выучено:</span> <span id="mastered">0</span> <span data-i18n="of">из</span> <span id="total">0</span></div>
-      <div class="stat-small"><span data-i18n="correctLbl">Верно:</span> <span id="correct">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="wrong">0</span></div>
+      <div class="stat-small"><span data-i18n="correctLbl">Верно:</span> <span id="correct">0</span> · <span data-i18n="wrongLbl">Ошибок:</span> <span id="wrong">0</span><span id="missedWrap" class="hidden"> · <span data-i18n="missedLbl">Не успел:</span> <span id="missed">0</span></span></div>
     </section>
-
-    <div class="progressbar"><div id="progressfill"></div></div>
 
     <div id="question">0 × 0</div>
 

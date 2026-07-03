@@ -2,6 +2,8 @@
 // Числа 0..12 (169 примеров). Режимы: 🎲 Случайный набор, ✎ Свой выбор, 📝 Диктант.
 // Выучено = 2 правильных ПОДРЯД. Евро за прохождение → магазин (питомцы, праздники).
 // Питомцы: коллекция; роли «Бонус» и «Подсказки» у РАЗНЫХ питомцев. Языки: RU/NL/EN.
+// Таймер (вкл. в Настройках): полоска на ответ, мигает при ≤3с; «не успел» в уроке — не ошибка
+// (счётчик), в диктанте — в повторение и минус из награды; пауза только при таймере.
 
 const MIN = 0;
 const MAX = 12;
@@ -53,6 +55,8 @@ const STR = {
     of: 'из', resetAll: 'Сбросить весь прогресс', backMenu: '← В меню',
     settingsTitle: 'Settings', langSection: 'Язык', timerWord: 'Таймер', settingsBack: '← Обратно',
     timerEnable: 'Включить таймер', timerSecPre: 'Таймер на', timerSecPost: 'секунд',
+    missedLbl: 'Не успел:', fbTimeout: '⏰ Время вышло! Попробуй решить эту задачку вовремя чуть позже.',
+    dictTimeout: '⏰ Не успел: {a}×{b}={r}',
     randomTitle: '🎲 Случайный набор', randomHint: 'Будешь умножать на эти числа:',
     reroll: '🎲 Другие две цифры', start: 'Начать',
     learned: 'Выучено:', correctLbl: 'Верно:', wrongLbl: 'Ошибок:',
@@ -94,6 +98,8 @@ const STR = {
     of: 'van', resetAll: 'Alle voortgang wissen', backMenu: '← Naar menu',
     settingsTitle: 'Settings', langSection: 'Taal', timerWord: 'Timer', settingsBack: '← Terug',
     timerEnable: 'Timer aan', timerSecPre: 'Timer op', timerSecPost: 'seconden',
+    missedLbl: 'Niet op tijd:', fbTimeout: '⏰ De tijd is om! Probeer deze som straks binnen de tijd op te lossen.',
+    dictTimeout: '⏰ Niet op tijd: {a}×{b}={r}',
     randomTitle: '🎲 Willekeurige set', randomHint: 'Je gaat met deze getallen vermenigvuldigen:',
     reroll: '🎲 Twee andere getallen', start: 'Starten',
     learned: 'Geleerd:', correctLbl: 'Goed:', wrongLbl: 'Fout:',
@@ -135,6 +141,8 @@ const STR = {
     of: 'of', resetAll: 'Reset all progress', backMenu: '← To menu',
     settingsTitle: 'Settings', langSection: 'Language', timerWord: 'Timer', settingsBack: '← Back',
     timerEnable: 'Enable timer', timerSecPre: 'Timer for', timerSecPost: 'seconds',
+    missedLbl: 'Missed:', fbTimeout: '⏰ Time is up! Try to solve it in time a bit later.',
+    dictTimeout: '⏰ Time is up: {a}×{b}={r}',
     randomTitle: '🎲 Random set', randomHint: "You'll multiply by these numbers:",
     reroll: '🎲 Two other numbers', start: 'Start',
     learned: 'Learned:', correctLbl: 'Correct:', wrongLbl: 'Mistakes:',
@@ -194,7 +202,7 @@ function twin(f) { return factByKey[key(f.b, f.a)]; }
 
 // --- Состояние ---
 let coins = 0;
-let timerOn = false;          // включён ли таймер (пока только настройка)
+let timerOn = false;          // включён ли таймер на ответ
 let timerSec = 5;             // секунд на пример (1..35)
 let openSection = null;       // null | 'lang' | 'timer' — открытый раздел настроек
 let ownedPets = [];           // список emoji (коллекция, можно повторы)
@@ -262,7 +270,11 @@ const el = {
   total: document.getElementById('total'),
   correct: document.getElementById('correct'),
   wrong: document.getElementById('wrong'),
-  progressfill: document.getElementById('progressfill'),
+  timerwrap: document.getElementById('timerwrap'),
+  timerNum: document.getElementById('timerNum'),
+  timerfill: document.getElementById('timerfill'),
+  missed: document.getElementById('missed'),
+  missedWrap: document.getElementById('missedWrap'),
   question: document.getElementById('question'),
   answer: document.getElementById('answer'),
   form: document.getElementById('answerForm'),
@@ -527,6 +539,8 @@ function hideAllScreens() {
 function showMenu(message) {
   mode = null;
   paused = false;
+  answering = false;
+  hideTimer();
   if (msgTimer) { clearTimeout(msgTimer); msgTimer = null; }
   el.levelMessage.textContent = message || '';
   if (message) msgTimer = setTimeout(() => { el.levelMessage.textContent = ''; msgTimer = null; }, 1000);
@@ -678,13 +692,14 @@ function startSession(opts) {
     kind: opts.kind, targets: opts.targets, temp: !!opts.temp, progress: !!opts.progress,
     need: opts.need || NEED_STREAK, title: opts.title,
     finishTitle: opts.finishTitle || t('finishRandom'), reward: opts.reward || 0,
-    streak: {}, log: [], timeMs: 0, answers: 0, wrongTotal: 0, hintUsed: false,
+    streak: {}, log: [], timeMs: 0, answers: 0, wrongTotal: 0, hintUsed: false, missed: 0,
   };
   mode = 'session';
   paused = false;
   current = null;
   el.pauseBtn.textContent = t('pause');
   el.pauseBtn.classList.remove('is-paused');
+  el.pauseBtn.classList.toggle('hidden', !timerOn); // пауза есть только при таймере
   el.answer.disabled = false;
   el.levelTitle.textContent = session.title;
   el.feedback.textContent = ' ';
@@ -706,7 +721,8 @@ function updateSessionStats() {
   el.total.textContent = tot;
   el.correct.textContent = session.log.filter(e => e.correct).length;
   el.wrong.textContent = session.log.filter(e => !e.correct).length;
-  el.progressfill.style.width = (tot ? (done / tot * 100) : 0) + '%';
+  el.missedWrap.classList.toggle('hidden', !timerOn);
+  el.missed.textContent = session.missed;
 }
 
 function nextSessionQuestion() {
@@ -726,6 +742,7 @@ function submitSession() {
   const raw = el.answer.value.trim();
   if (raw === '') return;
   answering = false;
+  stopTimer();
   const elapsed = Date.now() - qStartTime;
   session.timeMs += elapsed;
   session.answers++;
@@ -744,8 +761,8 @@ function submitSession() {
       if (current.streak >= NEED_STREAK) current.mastered = true;
     }
     const s = streakOf(current);
-    if (s >= session.need) flash(t('fbMastered', { a: current.a, b: current.b, r: right }), 'ok');
-    else flash(t('fbStreak', { s: s, n: session.need, left: session.need - s }), 'ok');
+    if (s >= session.need) flash(t('fbMastered', { a: current.a, b: current.b, r: right }), 'ok big');
+    else flash(t('fbStreak', { s: s, n: session.need, left: session.need - s }), 'ok big');
   } else {
     current.wrong++;
     if (session.temp) session.streak[key(current.a, current.b)] = 0;
@@ -816,7 +833,7 @@ function startDictation() {
   if (learnedCount >= 15 && N > learnedCount) N = learnedCount;
   if (learnedCount < 15) N = 15;
   const chosen = selectDictExamples(N);
-  dict = { timeMs: 0, answers: 0, correct: 0, wrong: 0 };
+  dict = { timeMs: 0, answers: 0, correct: 0, wrong: 0, penalty: 0 };
   dict.roundList = chosen;
   dict.reward = rewardForFacts([...new Set(chosen)]);
   beginDictRound(t('dictTitle'));
@@ -831,6 +848,8 @@ function beginDictRound(title) {
   dict.mistakes = new Set();
   el.pauseBtn.textContent = t('pause');
   el.pauseBtn.classList.remove('is-paused');
+  el.pauseBtn.classList.toggle('hidden', !timerOn); // пауза есть только при таймере
+  el.missedWrap.classList.add('hidden'); // в диктанте счётчика «не успел» нет
   el.answer.disabled = false;
   el.levelTitle.textContent = title;
   el.feedback.textContent = ' ';
@@ -845,7 +864,6 @@ function updateDictStats() {
   el.total.textContent = dict.roundTotal;
   el.correct.textContent = dict.correct;
   el.wrong.textContent = dict.wrong;
-  el.progressfill.style.width = (dict.roundTotal ? (dict.answered / dict.roundTotal * 100) : 0) + '%';
 }
 function nextDict() {
   if (paused) return;
@@ -858,6 +876,7 @@ function submitDict() {
   const raw = el.answer.value.trim();
   if (raw === '') return;
   answering = false;
+  stopTimer();
   const elapsed = Date.now() - qStartTime;
   dict.timeMs += elapsed;
   dict.answers++;
@@ -867,10 +886,11 @@ function submitDict() {
   const right = current.a * current.b;
   if (value === right) {
     dict.correct++;
-    flash(t('dictCorrect'), 'ok', 500);
+    flash(t('dictCorrect'), 'ok big', 500);
   } else {
     dict.wrong++;
     current.wrong++;
+    dict.penalty += factValue(current.a, current.b); // ошибка вычитается из награды
     dict.mistakes.add(key(current.a, current.b));
     const tw = twin(current);
     if (tw) dict.mistakes.add(key(tw.a, tw.b));
@@ -886,7 +906,10 @@ function endDictRound() {
 }
 function winDictation() {
   mode = null;
-  const earned = Math.round(dict.reward * petBonusMultiplier());
+  hideTimer();
+  // награда = полная − ошибки − «не успел»; бонус питомца только на остаток
+  const base = Math.max(0, dict.reward - dict.penalty);
+  const earned = Math.round(base * petBonusMultiplier());
   addCoins(earned);
   el.winTitle.textContent = t('winDictTitle');
   el.winText.textContent = t('winDictText');
@@ -903,6 +926,8 @@ function winDictation() {
 function showResults(title, log, timeMs, answers, coinsEarned) {
   mode = null;
   paused = false;
+  answering = false;
+  hideTimer();
   const correct = log.filter(e => e.correct).length;
   const wrong = log.filter(e => !e.correct).length;
   el.resultsTitle.textContent = title;
@@ -949,6 +974,96 @@ function playCeleb(container) {
   celebSound();
 }
 
+// =================== ТАЙМЕР НА ОТВЕТ ===================
+let timerRaf = null;
+let timerDeadline = 0;
+
+// остановить отсчёт (цифры замирают, но остаются видны — чтобы карточка не прыгала)
+function stopTimer() {
+  if (timerRaf) cancelAnimationFrame(timerRaf);
+  timerRaf = null;
+  document.body.classList.remove('urgent');
+  el.timerNum.classList.remove('glow');
+}
+// спрятать таймер совсем (уход с игрового экрана, пауза, таймер выключен)
+function hideTimer() {
+  stopTimer();
+  el.timerwrap.classList.add('hidden');
+  el.timerfill.classList.remove('blink');
+}
+
+// формат цифры: больше 3 сек — «00:05» (целые); 3.000 и меньше — «00:02.999» (миллисекунды)
+function fmtTimer(remMs) {
+  const pad2 = n => String(n).padStart(2, '0');
+  if (remMs > 3000) {
+    const secs = Math.ceil(remMs / 1000);
+    return pad2(Math.floor(secs / 60)) + ':' + pad2(secs % 60);
+  }
+  const secs = Math.floor(remMs / 1000);
+  const ms = Math.floor(remMs % 1000);
+  return pad2(Math.floor(secs / 60)) + ':' + pad2(secs % 60) + '.' + String(ms).padStart(3, '0');
+}
+
+function startTimer() {
+  stopTimer();
+  el.timerwrap.classList.remove('hidden');
+  const total = timerSec * 1000;
+  timerDeadline = Date.now() + total;
+  function render(rem) {
+    el.timerfill.style.width = (rem / total * 100) + '%';
+    el.timerNum.textContent = fmtTimer(rem);
+    // тревога, только когда осталось РОВНО 3.000 секунды или меньше:
+    // фон плавно переливается жёлтый ↔ красный, полоска краснеет
+    const urgent = rem <= 3000;
+    el.timerfill.classList.toggle('blink', urgent);
+    el.timerNum.classList.toggle('glow', urgent);   // цифры плавно переливаются
+    document.body.classList.toggle('urgent', urgent); // фон резко мигает
+  }
+  function tick() {
+    const rem = Math.max(0, timerDeadline - Date.now());
+    render(rem);
+    // время выходит РОВНО на нуле — не раньше ни на миллисекунду
+    if (rem <= 0) { onTimeout(); return; }
+    timerRaf = requestAnimationFrame(tick);
+  }
+  render(total);
+  timerRaf = requestAnimationFrame(tick);
+}
+
+function onTimeout() {
+  stopTimer();
+  if (!answering) return;
+  answering = false;
+  if (mode === 'session') sessionTimeout();
+  else if (mode === 'dictTest') dictTimeout();
+}
+
+// не успел в обучении: НЕ ошибка — счётчик +1, пример вернётся, без подсказки,
+// «подряд» не сбрасывается; правильный ответ не показываем (иначе можно
+// пересидеть таймер и бесплатно подглядеть)
+function sessionTimeout() {
+  session.missed++;
+  session.timeMs += timerSec * 1000;
+  session.answers++;
+  updateSessionStats();
+  flash(t('fbTimeout'), 'timeout', 1800); // крупно, красным и подольше
+}
+
+// не успел в диктанте: счётчика нет — пример идёт в повторение (с близнецом),
+// награда за него вычитается
+function dictTimeout() {
+  dict.timeMs += timerSec * 1000;
+  dict.answers++;
+  dict.answered++;
+  dict.wrong++;
+  dict.penalty += factValue(current.a, current.b);
+  dict.mistakes.add(key(current.a, current.b));
+  const tw = twin(current);
+  if (tw) dict.mistakes.add(key(tw.a, tw.b));
+  updateDictStats();
+  flash(t('dictTimeout', { a: current.a, b: current.b, r: current.a * current.b }), 'timeout', 1800);
+}
+
 // =================== ОБЩЕЕ ===================
 function renderQuestion() {
   answering = true;
@@ -961,6 +1076,7 @@ function renderQuestion() {
   updateSubmitState();
   el.answer.focus();
   qStartTime = Date.now();
+  if (timerOn) startTimer(); else hideTimer();
 }
 function advance() {
   if (mode === 'session') nextSessionQuestion();
@@ -981,16 +1097,20 @@ function onSubmit(e) {
   else if (mode === 'dictTest') submitDict();
 }
 function togglePause() {
-  if (!mode) return;
+  if (!mode || !timerOn) return; // пауза есть только при включённом таймере
   if (!paused && !answering) return;
   if (paused) {
     paused = false;
     el.pauseBtn.textContent = t('pause');
     el.pauseBtn.classList.remove('is-paused');
-    if (current) renderQuestion(); else advance();
+    advance(); // после паузы — ДРУГАЯ задачка (нельзя «подумать на паузе»)
   } else {
     paused = true;
     answering = false;
+    hideTimer();
+    // текущий пример убираем: в диктанте возвращаем в конец очереди, в уроке он и так в пуле
+    if (mode === 'dictTest' && current) dict.queue.push(current);
+    current = null;
     el.question.textContent = '⏸';
     el.answer.value = '';
     el.answer.disabled = true;

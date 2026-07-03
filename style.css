@@ -4,6 +4,7 @@ body {
   margin: 0;
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -188,6 +189,62 @@ h1 {
 .stat-big { font-size: 1.1rem; font-weight: 700; }
 .stat-small { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
 
+/* --- Таймер на ответ (цифра над полоской, всё над игровой карточкой) --- */
+.timer-wrap {
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 12px;
+}
+.timer-num {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.timerbar {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  overflow: hidden;
+}
+#timerfill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #34d399, #fbbf24);
+  border-radius: 8px;
+}
+#timerfill.blink { background: #ef4444; }
+
+/* когда осталось ≤ 3.000 сек:
+   фон РЕЗКО мигает жёлтый/красный, а цифры ПЛАВНО переливаются и всегда читаются */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: #fde047;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+body.urgent::before {
+  opacity: 0.85; /* плотно, чтобы цвета были настоящими красным и жёлтым */
+  animation: bgblink 0.6s steps(1, end) infinite;
+}
+@keyframes bgblink {
+  0%   { background: #fde047; }
+  50%  { background: #ef4444; }
+  100% { background: #fde047; }
+}
+.timer-num.glow { animation: numglow 1.2s ease-in-out infinite alternate; }
+@keyframes numglow {
+  0%   { color: #ffffff; }
+  50%  { color: #fde047; }
+  100% { color: #ef4444; }
+}
+
 /* --- Вопрос --- */
 #question {
   font-size: 3rem;
@@ -256,7 +313,9 @@ button:disabled {
 }
 #feedback.ok { color: #6ee7b7; }
 #feedback.bad { color: #fca5a5; }
-#feedback.timeout { color: #fcd34d; }
+/* крупные сообщения: «Верно» — большое зелёное, «Время вышло» — большое ярко-красное */
+#feedback.big { font-size: 2rem; font-weight: 800; line-height: 1.2; }
+#feedback.timeout { color: #ef4444; font-size: 2rem; font-weight: 800; line-height: 1.2; }
 
 .pop { animation: pop 0.3s ease; }
 @keyframes pop {
@@ -313,24 +372,9 @@ button:disabled {
 .hidden { display: none !important; }
 .win-stats { font-size: 1.1rem; line-height: 1.6; margin: 16px 0 24px; }
 
-/* --- Монеты, магазин, прогресс-бар, праздник --- */
+/* --- Монеты, магазин, праздник --- */
 .coin-balance { font-size: 1.15rem; font-weight: 800; color: #fde047; margin: 0 0 12px; }
 .results-coins { font-size: 1.15rem; font-weight: 800; color: #fde047; margin: 0 0 8px; }
-
-.progressbar {
-  height: 12px;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 18px;
-}
-#progressfill {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #34d399, #22d3ee);
-  border-radius: 8px;
-  transition: width 0.25s ease;
-}
 
 #shop-screen h2 { font-size: 1.1rem; margin: 14px 0 4px; }
 .shop-grid {
