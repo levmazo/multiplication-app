@@ -9,7 +9,12 @@
 <body>
   <!-- ГЛАВНОЕ МЕНЮ -->
   <main id="menu-screen">
-    <button id="settingsBtn" class="lang-btn" type="button">⚙ Settings</button>
+    <div class="menu-top">
+      <button id="settingsBtn" class="lang-btn" type="button">⚙ Settings</button>
+      <button id="mapMenuBtn" class="map-menu-btn" type="button">
+        <span class="map-pin">🗺️</span><span class="map-label" data-i18n="mapTitle">Карта</span>
+      </button>
+    </div>
     <h1 data-i18n="menuTitle">✖️ Таблица умножения</h1>
     <p class="overall"><span data-i18n="learnedTotal">Выучено всего:</span> <span id="overallMastered">0</span> <span data-i18n="of">из</span> <span id="overallTotal">169</span></p>
     <p class="coin-balance"><span id="coinBalance">0</span></p>
@@ -42,6 +47,30 @@
         <span data-i18n="timerSecPost">секунд</span>
       </div>
     </div>
+  </main>
+
+  <!-- КАРТА: выбор вида -->
+  <main id="map-screen" class="hidden">
+    <button id="mapBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 data-i18n="mapTitle">Карта</h1>
+    <div class="settings-two">
+      <button id="realMapBtn" type="button" data-i18n="realMap">Настоящая карта</button>
+      <button id="gridMapBtn" type="button" data-i18n="gridMap">Сетка</button>
+    </div>
+  </main>
+
+  <!-- НАСТОЯЩАЯ КАРТА: дорога -->
+  <main id="realmap-screen" class="hidden map-view">
+    <button id="realmapBackBtn" class="back-btn" type="button" data-i18n="mapBack">← Карта</button>
+    <div id="legend1" class="map-legend"></div>
+    <div id="realmapRoad" class="road"></div>
+  </main>
+
+  <!-- СЕТКА -->
+  <main id="grid-screen" class="hidden map-view">
+    <button id="gridBackBtn" class="back-btn" type="button" data-i18n="mapBack">← Карта</button>
+    <div id="legend2" class="map-legend"></div>
+    <div class="grid-scroll"><div id="gridRoot" class="grid-root"></div></div>
   </main>
 
   <!-- МАГАЗИН -->

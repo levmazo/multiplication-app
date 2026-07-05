@@ -37,6 +37,41 @@ h1 {
   font-size: 0.9rem;
   padding: 8px 14px;
 }
+
+/* Главное меню: весь экран, просторно, адаптивно (подстраивается под окно/экран) */
+#menu-screen { width: 100%; max-width: none; }
+#menu-screen h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: clamp(14px, 3vw, 24px) 0 clamp(16px, 3vw, 26px); }
+#menu-screen .overall { font-size: clamp(1.1rem, 3vw, 1.7rem); margin-bottom: clamp(10px, 2vw, 22px); }
+#menu-screen .coin-balance { font-size: clamp(1.1rem, 3vw, 1.7rem); margin-bottom: clamp(18px, 4vw, 40px); }
+#menu-screen .level-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: clamp(14px, 2.5vw, 30px);
+  margin: clamp(16px, 3vw, 36px) 0;
+}
+#menu-screen .level-btn { padding: clamp(28px, 6vw, 56px) 12px; }
+#menu-screen .level-btn .lvl-name { font-size: clamp(1.3rem, 3.5vw, 1.9rem); }
+#menu-screen #shopBtn {
+  margin-top: 20px;
+  margin-bottom: clamp(48px, 10vw, 100px); /* место внизу для питомцев, чтобы не перекрывали кнопку */
+  padding: clamp(14px, 2.5vw, 22px) clamp(28px, 5vw, 48px);
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+}
+
+/* верхний ряд меню: Settings в левом углу, Карта в правом */
+.menu-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+/* «Карта» — кнопка со значком 🗺️ и подписью снизу */
+.map-menu-btn {
+  background: #38bdf8; color: #08233a;
+  width: 3cm; height: 3cm;             /* 3 × 3 см */
+  box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  padding: 6px; line-height: 1.05;
+}
+.map-menu-btn .map-pin { font-size: 1.7rem; }
+.map-menu-btn .map-label { font-size: 0.9rem; font-weight: 800; }
+
+/* Магазин — зелёный, слева */
+#shopBtn { background: #84cc16; color: #14210a; margin-right: auto; }
 .lang-menu {
   position: absolute;
   top: 100%;
@@ -60,7 +95,7 @@ h1 {
 }
 
 /* --- Экран настроек: две синие кнопки у краёв --- */
-#settings-screen { width: 100%; max-width: 520px; }
+#settings-screen, #map-screen { width: 100%; max-width: 520px; }
 .settings-two {
   display: flex; justify-content: space-between; gap: 12px; margin-top: 48px;
 }
@@ -243,6 +278,59 @@ body.urgent::before {
   0%   { color: #ffffff; }
   50%  { color: #fde047; }
   100% { color: #ef4444; }
+}
+
+/* --- Карта: цвета статусов --- */
+.status-none  { background: #9ca3af; } /* серый — не решал */
+.status-ok    { background: #22c55e; } /* зелёный — верно */
+.status-miss  { background: #f59e0b; } /* оранжевый — не успел */
+.status-wrong { background: #ef4444; } /* красный — неверно */
+
+.map-view { max-width: 540px; width: 100%; }
+
+/* легенда прилипает к верху при прокрутке (как строка поиска в Google) */
+.map-legend {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 12px 8px;
+  margin-bottom: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 0 0 14px 14px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.map-legend .lg { display: flex; align-items: center; gap: 6px; }
+.map-legend .dot { width: 16px; height: 16px; border-radius: 50%; }
+
+/* Настоящая карта — дорога-змейка, ~3 см между остановками */
+.road { display: flex; flex-direction: column; align-items: center; gap: 3cm; padding: 4px 0 60px; }
+.road-row { display: flex; justify-content: center; gap: 3cm; }
+.stop {
+  width: 52px; height: 52px; min-width: 52px;
+  border-radius: 50%; border: none; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 800; color: #111827;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Сетка 13×13 — клетки ~1 см */
+.grid-scroll { overflow-x: auto; padding-bottom: 30px; }
+.grid-root { display: inline-grid; gap: 3px; }
+.grid-cell {
+  width: 1cm; height: 1cm; border: none; padding: 0;
+  border-radius: 4px; cursor: pointer;
+}
+.grid-head {
+  width: 1cm; height: 1cm;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.68rem; font-weight: 800;
 }
 
 /* --- Вопрос --- */

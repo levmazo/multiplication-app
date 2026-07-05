@@ -52,8 +52,10 @@ const CELEBS = [
 const STR = {
   ru: {
     menuTitle: '✖️ Таблица умножения', learnedTotal: 'Выучено всего:',
-    of: 'из', resetAll: 'Сбросить весь прогресс', backMenu: '← В меню',
+    of: 'из', resetAll: 'Сбросить весь прогресс', backMenu: '← Обратно',
     settingsTitle: 'Settings', langSection: 'Язык', timerWord: 'Таймер', settingsBack: '← Обратно',
+    mapTitle: 'Карта', mapTap: 'смотреть', mapBack: '← Карта', realMap: 'Настоящая карта', gridMap: 'Сетка',
+    legDone: 'верно', legMissed: 'не успел', legWrong: 'неверно', legNone: 'не решал', tableOf: 'Таблица ×{n}',
     timerEnable: 'Включить таймер', timerSecPre: 'Таймер на', timerSecPost: 'секунд',
     missedLbl: 'Не успел:', fbTimeout: '⏰ Время вышло! Попробуй решить эту задачку вовремя чуть позже.',
     dictTimeout: '⏰ Не успел: {a}×{b}={r}',
@@ -95,8 +97,10 @@ const STR = {
   },
   nl: {
     menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
-    of: 'van', resetAll: 'Alle voortgang wissen', backMenu: '← Naar menu',
+    of: 'van', resetAll: 'Alle voortgang wissen', backMenu: '← Terug',
     settingsTitle: 'Settings', langSection: 'Taal', timerWord: 'Timer', settingsBack: '← Terug',
+    mapTitle: 'Kaart', mapTap: 'bekijk', mapBack: '← Kaart', realMap: 'Echte kaart', gridMap: 'Rooster',
+    legDone: 'goed', legMissed: 'niet op tijd', legWrong: 'fout', legNone: 'niet gedaan', tableOf: 'Tafel van {n}',
     timerEnable: 'Timer aan', timerSecPre: 'Timer op', timerSecPost: 'seconden',
     missedLbl: 'Niet op tijd:', fbTimeout: '⏰ De tijd is om! Probeer deze som straks binnen de tijd op te lossen.',
     dictTimeout: '⏰ Niet op tijd: {a}×{b}={r}',
@@ -138,8 +142,10 @@ const STR = {
   },
   en: {
     menuTitle: '✖️ Multiplication table', learnedTotal: 'Learned in total:',
-    of: 'of', resetAll: 'Reset all progress', backMenu: '← To menu',
+    of: 'of', resetAll: 'Reset all progress', backMenu: '← Back',
     settingsTitle: 'Settings', langSection: 'Language', timerWord: 'Timer', settingsBack: '← Back',
+    mapTitle: 'Map', mapTap: 'view', mapBack: '← Map', realMap: 'Real map', gridMap: 'Grid',
+    legDone: 'correct', legMissed: 'missed', legWrong: 'wrong', legNone: 'not done', tableOf: 'Table of {n}',
     timerEnable: 'Enable timer', timerSecPre: 'Timer for', timerSecPost: 'seconds',
     missedLbl: 'Missed:', fbTimeout: '⏰ Time is up! Try to solve it in time a bit later.',
     dictTimeout: '⏰ Time is up: {a}×{b}={r}',
@@ -193,7 +199,8 @@ const factByKey = {};
 function key(a, b) { return a + 'x' + b; }
 for (let a = MIN; a <= MAX; a++) {
   for (let b = MIN; b <= MAX; b++) {
-    const f = { a, b, streak: 0, mastered: false, wrong: 0, mt: 0 };
+    // last: 0 не решал · 1 верно (зелёный) · 2 не успел (оранжевый) · 3 неверно (красный)
+    const f = { a, b, streak: 0, mastered: false, wrong: 0, mt: 0, last: 0 };
     facts.push(f);
     factByKey[key(a, b)] = f;
   }
@@ -240,6 +247,19 @@ const el = {
   levelMessage: document.getElementById('levelMessage'),
   levelButtons: document.getElementById('levelButtons'),
   shopBtn: document.getElementById('shopBtn'),
+  mapMenuBtn: document.getElementById('mapMenuBtn'),
+  mapScreen: document.getElementById('map-screen'),
+  mapBackBtn: document.getElementById('mapBackBtn'),
+  realMapBtn: document.getElementById('realMapBtn'),
+  gridMapBtn: document.getElementById('gridMapBtn'),
+  realmapScreen: document.getElementById('realmap-screen'),
+  realmapBackBtn: document.getElementById('realmapBackBtn'),
+  realmapRoad: document.getElementById('realmapRoad'),
+  legend1: document.getElementById('legend1'),
+  gridScreen: document.getElementById('grid-screen'),
+  gridBackBtn: document.getElementById('gridBackBtn'),
+  gridRoot: document.getElementById('gridRoot'),
+  legend2: document.getElementById('legend2'),
   shopScreen: document.getElementById('shop-screen'),
   shopBackBtn: document.getElementById('shopBackBtn'),
   shopBalance: document.getElementById('shopBalance'),
@@ -344,7 +364,7 @@ el.answer.addEventListener('input', updateSubmitState);
 const SAVE_KEY = 'mult_progress';
 function saveState() {
   const data = { facts: {}, coins, timerOn, timerSec, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
-  facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt }; });
+  facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt, l: f.last }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
 function loadState() {
@@ -363,7 +383,7 @@ function loadState() {
   if (data.facts) {
     facts.forEach(f => {
       const s = data.facts[key(f.a, f.b)];
-      if (s) { f.streak = s.s || 0; f.mastered = !!s.m; f.wrong = s.w || 0; f.mt = s.mt || 0; }
+      if (s) { f.streak = s.s || 0; f.mastered = !!s.m; f.wrong = s.w || 0; f.mt = s.mt || 0; f.last = s.l || 0; }
     });
   }
 }
@@ -524,9 +544,98 @@ function setTimerSec(v) {
   el.timerSecInput.value = n;
   saveState();
 }
+// =================== КАРТА ===================
+const STATUS_CLASS = ['status-none', 'status-ok', 'status-miss', 'status-wrong'];
+function statusClass(f) { return STATUS_CLASS[f.last] || 'status-none'; }
+
+function renderLegend(container) {
+  const items = [
+    ['status-ok', t('legDone')],
+    ['status-miss', t('legMissed')],
+    ['status-wrong', t('legWrong')],
+    ['status-none', t('legNone')],
+  ];
+  container.innerHTML = items
+    .map(([c, l]) => `<span class="lg"><span class="dot ${c}"></span>${l}</span>`)
+    .join('');
+}
+
+// нажал на пример → тренируешь всю таблицу первого числа (×a: a×0 … a×12)
+function startTable(a) {
+  const targets = factsByFactorsList([a]);
+  startSession({
+    kind: 'custom', temp: true, progress: true,
+    targets: targets, reward: rewardForFacts(targets),
+    title: t('tableOf', { n: a }), finishTitle: t('finishCustom'),
+  });
+}
+
+function showMap() {
+  hideAllScreens();
+  el.mapScreen.classList.remove('hidden');
+}
+
+function buildRealMap() {
+  el.realmapRoad.innerHTML = '';
+  const perRow = 3;
+  let row = null;
+  facts.forEach((f, i) => {
+    if (i % perRow === 0) {
+      row = document.createElement('div');
+      row.className = 'road-row';
+      if (Math.floor(i / perRow) % 2 === 1) row.style.flexDirection = 'row-reverse'; // змейка
+      el.realmapRoad.appendChild(row);
+    }
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'stop ' + statusClass(f);
+    b.textContent = `${f.a}×${f.b}`;
+    b.addEventListener('click', () => startTable(f.a));
+    row.appendChild(b);
+  });
+}
+function showRealMap() {
+  renderLegend(el.legend1);
+  buildRealMap();
+  hideAllScreens();
+  el.realmapScreen.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function buildGrid() {
+  const n = MAX - MIN + 1;
+  el.gridRoot.style.gridTemplateColumns = `repeat(${n + 1}, 1cm)`;
+  el.gridRoot.innerHTML = '';
+  const head = txt => { const d = document.createElement('div'); d.className = 'grid-head'; d.textContent = txt; return d; };
+  el.gridRoot.appendChild(head('×'));
+  for (let b = MIN; b <= MAX; b++) el.gridRoot.appendChild(head(b));
+  for (let a = MIN; a <= MAX; a++) {
+    el.gridRoot.appendChild(head(a));
+    for (let b = MIN; b <= MAX; b++) {
+      const f = factByKey[key(a, b)];
+      const c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'grid-cell ' + statusClass(f);
+      c.title = `${a}×${b}`;
+      c.addEventListener('click', () => startTable(a));
+      el.gridRoot.appendChild(c);
+    }
+  }
+}
+function showGrid() {
+  renderLegend(el.legend2);
+  buildGrid();
+  hideAllScreens();
+  el.gridScreen.classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
 function hideAllScreens() {
   el.menuScreen.classList.add('hidden');
   el.settingsScreen.classList.add('hidden');
+  el.mapScreen.classList.add('hidden');
+  el.realmapScreen.classList.add('hidden');
+  el.gridScreen.classList.add('hidden');
   el.shopScreen.classList.add('hidden');
   el.customScreen.classList.add('hidden');
   el.randomScreen.classList.add('hidden');
@@ -751,6 +860,7 @@ function submitSession() {
   const value = parseInt(raw, 10);
   const right = current.a * current.b;
   const isCorrect = value === right;
+  current.last = isCorrect ? 1 : 3; // для карты: зелёный / красный
   session.log.push({ a: current.a, b: current.b, answer: value, correct: isCorrect });
 
   if (isCorrect) {
@@ -884,6 +994,7 @@ function submitDict() {
   current.mt = Math.max(current.mt, elapsed);
   const value = parseInt(raw, 10);
   const right = current.a * current.b;
+  current.last = (value === right) ? 1 : 3; // для карты: зелёный / красный
   if (value === right) {
     dict.correct++;
     flash(t('dictCorrect'), 'ok big', 500);
@@ -1042,6 +1153,7 @@ function onTimeout() {
 // «подряд» не сбрасывается; правильный ответ не показываем (иначе можно
 // пересидеть таймер и бесплатно подглядеть)
 function sessionTimeout() {
+  current.last = 2; // для карты: оранжевый — не успел
   session.missed++;
   session.timeMs += timerSec * 1000;
   session.answers++;
@@ -1052,6 +1164,7 @@ function sessionTimeout() {
 // не успел в диктанте: счётчика нет — пример идёт в повторение (с близнецом),
 // награда за него вычитается
 function dictTimeout() {
+  current.last = 2; // для карты: оранжевый — не успел
   dict.timeMs += timerSec * 1000;
   dict.answers++;
   dict.answered++;
@@ -1144,6 +1257,12 @@ el.shopBackBtn.addEventListener('click', () => showMenu());
 el.customBackBtn.addEventListener('click', () => showMenu());
 el.customStartBtn.addEventListener('click', startCustom);
 el.settingsBtn.addEventListener('click', showSettings);
+el.mapMenuBtn.addEventListener('click', showMap);
+el.mapBackBtn.addEventListener('click', () => showMenu());
+el.realMapBtn.addEventListener('click', showRealMap);
+el.gridMapBtn.addEventListener('click', showGrid);
+el.realmapBackBtn.addEventListener('click', showMap);
+el.gridBackBtn.addEventListener('click', showMap);
 el.settingsBackBtn.addEventListener('click', settingsBack);
 el.langSection.addEventListener('click', () => { openSection = 'lang'; renderSettings(); });
 el.timerSection.addEventListener('click', () => { openSection = 'timer'; renderSettings(); });
