@@ -1,7 +1,7 @@
 // === Тренажёр таблицы умножения ===
 // Числа 0..12 (169 примеров). Режимы: 🎲 Случайный набор, ✎ Свой выбор, 📝 Диктант.
 // Выучено = 2 правильных ПОДРЯД. Евро за прохождение → магазин (питомцы, праздники).
-// Питомцы: коллекция; роли «Бонус» и «Подсказки» у РАЗНЫХ питомцев. Языки: RU/NL/EN.
+// Питомцы: коллекция; сидят рядом, один назначается на «Подсказки». Языки: RU/NL/EN.
 // Таймер (вкл. в Настройках): полоска на ответ, мигает при ≤3с; «не успел» в уроке — не ошибка
 // (счётчик), в диктанте — в повторение и минус из награды; пауза только при таймере.
 
@@ -37,9 +37,6 @@ const ALL_PETS = REGULAR_PETS.concat(LEGENDARY_PETS);
 const petByEmoji = {};
 ALL_PETS.forEach(p => { petByEmoji[p.emoji] = p; });
 function petLevel(emoji) { return ALL_PETS.findIndex(p => p.emoji === emoji) + 1; }
-function petBonusMultiplier() {
-  return (bonusPet && petByEmoji[bonusPet]) ? (1 + petByEmoji[bonusPet].bonus / 100) : 1;
-}
 
 const CELEBS = [
   { emoji: '🎉', price: 0 },
@@ -213,7 +210,6 @@ let timerOn = false;          // включён ли таймер на отве�
 let timerSec = 5;             // секунд на пример (1..35)
 let openSection = null;       // null | 'lang' | 'timer' — открытый раздел настроек
 let ownedPets = [];           // список emoji (коллекция, можно повторы)
-let bonusPet = null;          // emoji питомца, дающего бонус
 let hintPet = null;           // emoji питомца, дающего подсказки
 let celebration = '🎉';
 let ownedCelebs = ['🎉'];
@@ -321,12 +317,10 @@ const el = {
   petCompanion: document.getElementById('petCompanion'),
 };
 
-// питомцы сидят рядом; над бонусным/подсказочным — подпись
+// питомцы сидят рядом; над подсказочным — подпись
 function updatePet() {
   el.petCompanion.innerHTML = ownedPets.map(e => {
-    let role = '';
-    if (e === bonusPet) role = t('roleBonus');
-    else if (e === hintPet) role = t('roleHint');
+    const role = (e === hintPet) ? t('roleHint') : '';
     return `<span class="pet-one">${role ? `<span class="pet-label">${role}</span>` : ''}${e}</span>`;
   }).join('');
 }
@@ -363,7 +357,7 @@ el.answer.addEventListener('input', updateSubmitState);
 // --- Сохранение ---
 const SAVE_KEY = 'mult_progress';
 function saveState() {
-  const data = { facts: {}, coins, timerOn, timerSec, pets: ownedPets, bonusPet, hintPet, celeb: celebration, owned: ownedCelebs };
+  const data = { facts: {}, coins, timerOn, timerSec, pets: ownedPets, hintPet, celeb: celebration, owned: ownedCelebs };
   facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt, l: f.last }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
@@ -375,7 +369,6 @@ function loadState() {
   timerOn = !!data.timerOn;
   timerSec = Math.min(35, Math.max(1, data.timerSec || 5));
   ownedPets = data.pets || (data.pet ? [data.pet] : []);
-  bonusPet = data.bonusPet || null;
   hintPet = data.hintPet || null;
   celebration = data.celeb || '🎉';
   ownedCelebs = data.owned || ['🎉'];
@@ -391,7 +384,7 @@ function loadState() {
 function applyOneTimeFix() {
   try {
     if (localStorage.getItem('mult_fix_306')) return;
-    coins = 306; ownedPets = []; bonusPet = null; hintPet = null;
+    coins = 306; ownedPets = []; hintPet = null;
     localStorage.setItem('mult_fix_306', '1');
     saveState();
   } catch (e) { /* нет доступа */ }
@@ -676,16 +669,13 @@ function petCard(p, container) {
   card.className = 'shop-item' + (owned ? ' owned' : '');
   card.innerHTML =
     `<span class="shop-emoji">${p.emoji}${count > 1 ? '<span class="pet-count">×' + count + '</span>' : ''}</span>` +
-    `<span class="shop-bonus">+${p.bonus}%</span>` +
     `<span class="shop-hint">${t('hintLvl', { n: petLevel(p.emoji) })}</span>` +
     `<button type="button" class="buy-btn">${t('buy')} · ${p.price} ${t('currency')}</button>` +
     (owned ? `<div class="role-row">
-        <button type="button" class="role-btn role-bonus${bonusPet === p.emoji ? ' on' : ''}">${t('roleBonus')}</button>
         <button type="button" class="role-btn role-hint${hintPet === p.emoji ? ' on' : ''}">${t('roleHint')}</button>
       </div>` : '');
   card.querySelector('.buy-btn').addEventListener('click', () => buyPet(p));
   if (owned) {
-    card.querySelector('.role-bonus').addEventListener('click', () => setRole('bonus', p.emoji));
     card.querySelector('.role-hint').addEventListener('click', () => setRole('hint', p.emoji));
   }
   container.appendChild(card);
@@ -718,15 +708,9 @@ function buyPet(p) {
   ownedPets.push(p.emoji);
   updatePet(); saveState(); renderShop();
 }
-// роль (bonus/hint) у РАЗНЫХ питомцев
+// назначить/снять питомца, дающего подсказки
 function setRole(role, emoji) {
-  if (role === 'bonus') {
-    if (hintPet === emoji) { shopMsg(t('oneRole')); return; }
-    bonusPet = (bonusPet === emoji) ? null : emoji;
-  } else {
-    if (bonusPet === emoji) { shopMsg(t('oneRole')); return; }
-    hintPet = (hintPet === emoji) ? null : emoji;
-  }
+  hintPet = (hintPet === emoji) ? null : emoji;
   updatePet(); saveState(); renderShop();
 }
 function pickCeleb(c) {
@@ -898,7 +882,7 @@ function finishSession() {
     return;
   }
   if (session.log.length === 0) { showMenu(t('allLearnedHere')); return; }
-  const earned = Math.round(session.reward * petBonusMultiplier());
+  const earned = session.reward;
   if (earned > 0) addCoins(earned);
   showResults(session.finishTitle, session.log, session.timeMs, session.answers, earned);
 }
@@ -1018,9 +1002,8 @@ function endDictRound() {
 function winDictation() {
   mode = null;
   hideTimer();
-  // награда = полная − ошибки − «не успел»; бонус питомца только на остаток
-  const base = Math.max(0, dict.reward - dict.penalty);
-  const earned = Math.round(base * petBonusMultiplier());
+  // награда = полная − ошибки − «не успел»
+  const earned = Math.max(0, dict.reward - dict.penalty);
   addCoins(earned);
   el.winTitle.textContent = t('winDictTitle');
   el.winText.textContent = t('winDictText');
