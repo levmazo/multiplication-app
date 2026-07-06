@@ -10,15 +10,13 @@ const MAX = 12;
 const NEED_STREAK = 2;
 const SLOW_MS = 30000; // «долго думал» — для подбора примеров в диктант
 
-// --- Награда по сложности: лёгкие 0,1,2,5,10,11 → 10; средние 3,4 → 70; сложные → 300 ---
-const EASY_FACTORS = [0, 1, 2, 5, 10, 11];
-const MEDIUM_FACTORS = [3, 4];
-function factorScore(f) {
-  if (EASY_FACTORS.includes(f)) return 10;
-  if (MEDIUM_FACTORS.includes(f)) return 70;
-  return 300;
-}
-function factValue(a, b) { return Math.min(factorScore(a), factorScore(b)); }
+// --- Фиксированная награда ЗА ПРОХОД ЦЕЛОЙ ТАБЛИЦЫ (по сложности) ---
+// ×0 → 5; ×1,2,5,10,11 → 7; ×3,4 → 30; ×6,7,8 → 70; ×9,12 → 100.
+const TABLE_REWARD = { 0: 5, 1: 7, 2: 7, 5: 7, 10: 7, 11: 7, 3: 30, 4: 30, 6: 70, 7: 70, 8: 70, 9: 100, 12: 100 };
+const PER_TABLE = MAX - MIN + 1; // 13 примеров в таблице
+// цена одного примера = доля от награды его таблицы (по первому числу a);
+// сумма 13 долей целой таблицы = ровно её награда
+function factValue(a, b) { return (TABLE_REWARD[a] || 0) / PER_TABLE; }
 function rewardForFacts(list) { return list.reduce((s, f) => s + factValue(f.a, f.b), 0); }
 
 // --- Питомцы: цена, способ подсказки, легендарность ---
@@ -882,7 +880,7 @@ function finishSession() {
     return;
   }
   if (session.log.length === 0) { showMenu(t('allLearnedHere')); return; }
-  const earned = session.reward;
+  const earned = Math.round(session.reward);
   if (earned > 0) addCoins(earned);
   showResults(session.finishTitle, session.log, session.timeMs, session.answers, earned);
 }
@@ -1003,7 +1001,7 @@ function winDictation() {
   mode = null;
   hideTimer();
   // награда = полная − ошибки − «не успел»
-  const earned = Math.max(0, dict.reward - dict.penalty);
+  const earned = Math.round(Math.max(0, dict.reward - dict.penalty));
   addCoins(earned);
   el.winTitle.textContent = t('winDictTitle');
   el.winText.textContent = t('winDictText');
