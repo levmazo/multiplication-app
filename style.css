@@ -333,6 +333,49 @@ body.urgent::before {
   color: #fff; font-size: 0.68rem; font-weight: 800;
 }
 
+/* --- Гость --- */
+.guest-banner {
+  display: block; width: 100%;
+  background: #f59e0b; color: #1a1206;
+  font-size: 1.2rem; font-weight: 800;
+  margin: 4px 0 14px;
+  animation: guestpulse 1s ease-in-out infinite alternate;
+}
+@keyframes guestpulse { from { transform: scale(1); } to { transform: scale(1.04); } }
+.guest-test { background: rgba(255,255,255,0.14); color: #fff; font-size: 0.8rem; margin-top: 10px; }
+.guest-search-hint { color: #fbbf24; font-weight: 800; font-size: 1.05rem; margin: 4px 0 10px; }
+.guest-exit { background: rgba(255,255,255,0.14); color: #fff; font-size: 0.9rem; margin: 0 0 12px; }
+
+/* режим поиска: кнопки-меню становятся дверями */
+.searching .level-btn, .searching #shopBtn, .searching #mapMenuBtn, .searching #settingsBtn { position: relative; }
+.door-live { outline: 3px dashed #f59e0b; outline-offset: 2px; }
+.door-live::after {
+  content: '🚪'; position: absolute; top: -8px; right: -8px;
+  font-size: 1.1rem; background: #1a1206; border-radius: 50%; padding: 1px 3px;
+}
+.door-open { animation: dooropen 0.4s ease; }
+@keyframes dooropen {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.9) rotate(-4deg); }
+  70% { transform: scale(1.05) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* экран гостя: человек с доской */
+.guest-stage { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 8vh; }
+.person-svg { width: 200px; height: 212px; }
+.speech {
+  background: #fff; color: #1a1206; font-size: 1.5rem; font-weight: 800;
+  border: 4px solid #4f7cff; border-radius: 16px; padding: 14px 22px;
+}
+#guestReadyBtn { margin-top: 22px; font-size: 1.4rem; }
+
+/* лицо-настроение гостя на игровом экране */
+.guest-mood { display: flex; justify-content: center; margin: 6px 0 4px; }
+.guest-mood .face-svg { width: 96px; height: 96px; }
+.guest-mood.bump { animation: moodbump 0.35s ease; }
+@keyframes moodbump { 0% { transform: scale(0.8); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+
 /* --- Вопрос --- */
 #question {
   font-size: 3rem;
@@ -526,5 +569,40 @@ button:disabled {
 #dict-screen button[type="button"]#dictStartBtn { /* кнопка по умолчанию */ }
 
 .celeb-fx { font-size: 1.8rem; min-height: 1.6em; letter-spacing: 4px; }
+.celeb-fx.scene { letter-spacing: 0; }
 .cfx { display: inline-block; animation: cfxb 0.6s ease infinite alternate; }
 @keyframes cfxb { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+
+/* --- Сценка: американские горки --- */
+.coaster {
+  position: relative; width: 320px; height: 200px; max-width: 92vw;
+  margin: 0 auto; overflow: hidden; border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+}
+.scene-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cloud { animation: clouddrift linear infinite; }
+.cloudA { animation-duration: 9s; }
+.cloudB { animation-duration: 13s; }
+@keyframes clouddrift {
+  from { transform: translateX(0); }
+  to { transform: translateX(340px); }
+}
+.cart-mover {
+  position: absolute; top: 0; left: 0; width: 0; height: 0;
+  offset-path: path('M0 130 C40 130 52 55 98 55 S160 145 206 145 S284 62 330 88');
+  offset-rotate: auto; offset-distance: 0%;
+  /* ровная скорость (linear) — при равном сдвиге по времени вагончики держат равное расстояние.
+     Задержки задаются инлайном (coasterCarts) — вереница на равных промежутках. */
+  animation: ride 4s linear infinite;
+}
+@keyframes ride { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.fan { transform-box: fill-box; transform-origin: center bottom; animation: fanjump 0.6s ease-in-out infinite; }
+.fanB { animation-delay: 0.15s; } .fanC { animation-delay: 0.3s; }
+.fanD { animation-delay: 0.1s; } .fanE { animation-delay: 0.25s; } .fanF { animation-delay: 0.4s; }
+@keyframes fanjump { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.flagwave { transform-box: fill-box; transform-origin: left bottom; animation: flagwave 0.7s ease-in-out infinite; }
+@keyframes flagwave { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+/* % считается от viewBox, но .coaster масштабируется под max-width — координаты совпадают при 320px;
+   на узких экранах сценка ужимается целиком, вагончик остаётся на рельсах */
+.cart { transform: translate(-32px, -52px); }         /* колёса вагончика на линию рельса */
+.cart-svg { width: 64px; height: 58px; display: block; }

@@ -50,6 +50,14 @@ const STR = {
     of: 'из', resetAll: 'Сбросить весь прогресс', backMenu: '← Обратно',
     settingsTitle: 'Settings', langSection: 'Язык', timerWord: 'Таймер', settingsBack: '← Обратно',
     mapTitle: 'Карта', mapTap: 'смотреть', mapBack: '← Карта', realMap: 'Настоящая карта', gridMap: 'Сетка',
+    guestBanner: '🚪 Гость прилетел!', guestTitle: '🚪 Гость прилетел!', guestDoorHint: 'Найди дверь и открой её.',
+    guestChallenge: 'Помоги гостю: реши 5 задач', guestGone: 'Гость улетел 😔 (кончилось терпение)',
+    guestSearchHint: 'Открывай двери — за одной прячется гость! 🚪', guestExit: '← Выйти из поиска',
+    guestReadyQ: 'Готов к задаче?', guestReady: 'Готов!',
+    guestGood: 'Верно! 😊', guestBad: 'Ошибка… гость грустит',
+    guestEmpty: ['Тут пусто…', 'Только паутина 🕸️', 'Никого нет', 'Скрип… и пусто', 'Пустая комната'],
+    guestGift: '🎁 Подарок гостя!', guestGiftText: 'Ты получил особый праздник: {e}',
+    specialsTitle: 'Особые праздники (от гостя)', specialsEmpty: 'Пока пусто — помоги гостю, и он подарит особый праздник.',
     legDone: 'верно', legMissed: 'не успел', legWrong: 'неверно', legNone: 'не решал', tableOf: 'Таблица ×{n}',
     timerEnable: 'Включить таймер', timerSecPre: 'Таймер на', timerSecPost: 'секунд',
     missedLbl: 'Не успел:', fbTimeout: '⏰ Время вышло! Попробуй решить эту задачку вовремя чуть позже.',
@@ -95,6 +103,14 @@ const STR = {
     of: 'van', resetAll: 'Alle voortgang wissen', backMenu: '← Terug',
     settingsTitle: 'Settings', langSection: 'Taal', timerWord: 'Timer', settingsBack: '← Terug',
     mapTitle: 'Kaart', mapTap: 'bekijk', mapBack: '← Kaart', realMap: 'Echte kaart', gridMap: 'Rooster',
+    guestBanner: '🚪 Er is een gast!', guestTitle: '🚪 Er is een gast!', guestDoorHint: 'Zoek de deur en open hem.',
+    guestChallenge: 'Help de gast: los 5 sommen op', guestGone: 'De gast is weg 😔 (geduld op)',
+    guestSearchHint: 'Open de deuren — achter één zit de gast! 🚪', guestExit: '← Stop met zoeken',
+    guestReadyQ: 'Klaar voor de sommen?', guestReady: 'Klaar!',
+    guestGood: 'Goed! 😊', guestBad: 'Fout… de gast wordt verdrietig',
+    guestEmpty: ['Hier is niets…', 'Alleen een spinnenweb 🕸️', 'Niemand hier', 'Kraak… en leeg', 'Lege kamer'],
+    guestGift: '🎁 Cadeau van de gast!', guestGiftText: 'Je kreeg een speciaal feestje: {e}',
+    specialsTitle: 'Speciale feestjes (van de gast)', specialsEmpty: 'Nog leeg — help de gast en je krijgt een speciaal feestje.',
     legDone: 'goed', legMissed: 'niet op tijd', legWrong: 'fout', legNone: 'niet gedaan', tableOf: 'Tafel van {n}',
     timerEnable: 'Timer aan', timerSecPre: 'Timer op', timerSecPost: 'seconden',
     missedLbl: 'Niet op tijd:', fbTimeout: '⏰ De tijd is om! Probeer deze som straks binnen de tijd op te lossen.',
@@ -140,6 +156,14 @@ const STR = {
     of: 'of', resetAll: 'Reset all progress', backMenu: '← Back',
     settingsTitle: 'Settings', langSection: 'Language', timerWord: 'Timer', settingsBack: '← Back',
     mapTitle: 'Map', mapTap: 'view', mapBack: '← Map', realMap: 'Real map', gridMap: 'Grid',
+    guestBanner: '🚪 A guest arrived!', guestTitle: '🚪 A guest arrived!', guestDoorHint: 'Find the door and open it.',
+    guestChallenge: 'Help the guest: solve 5 problems', guestGone: 'The guest flew away 😔 (ran out of patience)',
+    guestSearchHint: 'Open the doors — the guest hides behind one! 🚪', guestExit: '← Stop searching',
+    guestReadyQ: 'Ready for the problems?', guestReady: 'Ready!',
+    guestGood: 'Correct! 😊', guestBad: 'Wrong… the guest is sad',
+    guestEmpty: ['Nothing here…', 'Just a cobweb 🕸️', 'Nobody here', 'Creak… and empty', 'Empty room'],
+    guestGift: '🎁 Guest gift!', guestGiftText: 'You got a special celebration: {e}',
+    specialsTitle: 'Special celebrations (from the guest)', specialsEmpty: 'Empty for now — help the guest to get a special celebration.',
     legDone: 'correct', legMissed: 'missed', legWrong: 'wrong', legNone: 'not done', tableOf: 'Table of {n}',
     timerEnable: 'Enable timer', timerSecPre: 'Timer for', timerSecPost: 'seconds',
     missedLbl: 'Missed:', fbTimeout: '⏰ Time is up! Try to solve it in time a bit later.',
@@ -211,6 +235,14 @@ let ownedPets = [];           // список emoji (коллекция, мож�
 let hintPet = null;           // emoji питомца, дающего подсказки
 let celebration = '🎉';
 let ownedCelebs = ['🎉'];
+// Гость: особые праздники (только от гостя, купить нельзя)
+const SPECIAL_CELEBS = ['🎇', '💤', '🪅', '🎈', '🎁', '🏆', '🥳', '🪩', '🧨', '💥', '⭐', '🌟', '☄️', '🎠', '🎡', '🎢', '🎪', '🍾', '🥂', '🎖️'];
+let ownedSpecials = [];       // полученные особые праздники
+let guestWaiting = false;     // гость прилетел и ждёт (только пока играешь)
+let guestTimer = null;
+let guestSearching = false;   // режим поиска: кнопки меню — двери
+let guestDoorBtns = [];       // кнопки-двери в режиме поиска
+let guestDoorBtn = null;      // за какой дверью прячется гость
 let mode = null;              // 'session' | 'dictTest' | null
 let session = null;
 let dict = null;
@@ -262,6 +294,16 @@ const el = {
   shopPets: document.getElementById('shopPets'),
   shopLegendary: document.getElementById('shopLegendary'),
   shopCelebs: document.getElementById('shopCelebs'),
+  shopSpecials: document.getElementById('shopSpecials'),
+  specialsEmpty: document.getElementById('specialsEmpty'),
+  guestBanner: document.getElementById('guestBanner'),
+  guestExitBtn: document.getElementById('guestExitBtn'),
+  guestSearchHint: document.getElementById('guestSearchHint'),
+  guestScreen: document.getElementById('guest-screen'),
+  guestBackBtn: document.getElementById('guestBackBtn'),
+  guestStage: document.getElementById('guestStage'),
+  guestReadyBtn: document.getElementById('guestReadyBtn'),
+  guestMood: document.getElementById('guestMood'),
   customScreen: document.getElementById('custom-screen'),
   customChecks: document.getElementById('customChecks'),
   customStartBtn: document.getElementById('customStartBtn'),
@@ -355,7 +397,7 @@ el.answer.addEventListener('input', updateSubmitState);
 // --- Сохранение ---
 const SAVE_KEY = 'mult_progress';
 function saveState() {
-  const data = { facts: {}, coins, timerOn, timerSec, pets: ownedPets, hintPet, celeb: celebration, owned: ownedCelebs };
+  const data = { facts: {}, coins, timerOn, timerSec, pets: ownedPets, hintPet, celeb: celebration, owned: ownedCelebs, specials: ownedSpecials };
   facts.forEach(f => { data.facts[key(f.a, f.b)] = { s: f.streak, m: f.mastered, w: f.wrong, mt: f.mt, l: f.last }; });
   try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (e) { /* нет доступа */ }
 }
@@ -370,6 +412,7 @@ function loadState() {
   hintPet = data.hintPet || null;
   celebration = data.celeb || '🎉';
   ownedCelebs = data.owned || ['🎉'];
+  ownedSpecials = data.specials || [];
   if (ownedCelebs.indexOf('🎉') === -1) ownedCelebs.push('🎉');
   if (data.facts) {
     facts.forEach(f => {
@@ -502,6 +545,8 @@ function renderMenu() {
     dictBtn.addEventListener('click', () => showMenu(t('dictNeedLevel')));
   }
   el.levelButtons.appendChild(dictBtn);
+
+  updateGuestMenuUI();
 }
 
 function updateTimerUI() {
@@ -634,6 +679,7 @@ function hideAllScreens() {
   el.gameScreen.classList.add('hidden');
   el.resultsScreen.classList.add('hidden');
   el.winScreen.classList.add('hidden');
+  el.guestScreen.classList.add('hidden');
 }
 
 function showMenu(message) {
@@ -699,6 +745,17 @@ function renderShop() {
     b.addEventListener('click', () => pickCeleb(c));
     el.shopCelebs.appendChild(b);
   });
+  // особые праздники (только полученные от гостя)
+  el.shopSpecials.innerHTML = '';
+  el.specialsEmpty.classList.toggle('hidden', ownedSpecials.length > 0);
+  ownedSpecials.forEach(e => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'shop-item' + (celebration === e ? ' active' : '');
+    b.innerHTML = `<span class="shop-emoji">${e}</span><span class="shop-price">${celebration === e ? t('active') : t('select')}</span>`;
+    b.addEventListener('click', () => { celebration = e; saveState(); renderShop(); });
+    el.shopSpecials.appendChild(b);
+  });
 }
 function buyPet(p) {
   if (coins < p.price) { shopMsg(t('notEnough')); return; }
@@ -720,6 +777,181 @@ function pickCeleb(c) {
   }
   celebration = c.emoji;
   saveState(); renderShop();
+}
+
+// =================== ГОСТЬ ===================
+const GUEST_MIN_MS = 15 * 60 * 1000;  // 15 минут
+const GUEST_MAX_MS = 60 * 60 * 1000;  // 60 минут
+const GUEST_NUMS = [3, 4, 6, 7, 8];   // средние/сложные множители
+const GUEST_START_MOOD = 3;           // стартовое терпение гостя
+const GUEST_MOOD_MAX = 8;             // максимум радости
+
+// назначить следующий прилёт (таймер идёт, только пока игра открыта)
+function scheduleGuest() {
+  if (guestTimer) clearTimeout(guestTimer);
+  const delay = GUEST_MIN_MS + Math.random() * (GUEST_MAX_MS - GUEST_MIN_MS);
+  guestTimer = setTimeout(guestArrive, delay);
+}
+// гость прилетел — показать баннер в меню
+function guestArrive() {
+  if (guestWaiting) return;
+  guestWaiting = true;
+  if (!el.menuScreen.classList.contains('hidden')) renderMenu();
+}
+
+// --- Поиск гостя: кнопки меню становятся дверями ---
+function guestDoors() {
+  const list = Array.prototype.slice.call(el.levelButtons.querySelectorAll('button'));
+  list.push(el.shopBtn, el.mapMenuBtn, el.settingsBtn);
+  return list;
+}
+function startGuestSearch() {
+  if (!guestWaiting) return;
+  guestSearching = true;
+  guestDoorBtns = guestDoors();
+  guestDoorBtn = guestDoorBtns[Math.floor(Math.random() * guestDoorBtns.length)];
+  guestDoorBtns.forEach(b => b.classList.add('door-live'));
+  el.menuScreen.classList.add('searching');
+  updateGuestMenuUI();
+}
+function exitGuestSearch() {
+  guestSearching = false;
+  guestDoorBtns.forEach(b => b.classList.remove('door-live', 'door-open'));
+  guestDoorBtns = [];
+  guestDoorBtn = null;
+  el.menuScreen.classList.remove('searching');
+  renderMenu();
+}
+// баннер / кнопка выхода / подсказка — без перестройки кнопок меню
+function updateGuestMenuUI() {
+  el.guestBanner.classList.toggle('hidden', !(guestWaiting && !guestSearching));
+  el.guestExitBtn.classList.toggle('hidden', !guestSearching);
+  el.guestSearchHint.classList.toggle('hidden', !guestSearching);
+}
+// перехват клика по «двери» до штатного перехода (фаза перехвата)
+function onMenuDoorClick(e) {
+  if (!guestSearching) return;
+  const btn = e.target.closest('button');
+  if (!btn || guestDoorBtns.indexOf(btn) === -1) return; // не дверь (напр. «выйти»)
+  e.stopPropagation();
+  e.preventDefault();
+  openDoor(btn);
+}
+function openDoor(btn) {
+  if (btn === guestDoorBtn) {
+    guestSearching = false;
+    guestDoorBtns.forEach(b => b.classList.remove('door-live', 'door-open'));
+    el.menuScreen.classList.remove('searching');
+    showGuestMeeting();
+  } else {
+    btn.classList.remove('door-open');
+    void btn.offsetWidth;
+    btn.classList.add('door-open');
+    const arr = (STR[lang] && STR[lang].guestEmpty) || STR.ru.guestEmpty;
+    el.levelMessage.textContent = arr[Math.floor(Math.random() * arr.length)];
+    if (msgTimer) clearTimeout(msgTimer);
+    msgTimer = setTimeout(() => { el.levelMessage.textContent = ''; msgTimer = null; }, 1100);
+  }
+}
+
+// --- Встреча: человек с доской «Готов?» ---
+function showGuestMeeting() {
+  hideAllScreens();
+  el.guestScreen.classList.remove('hidden');
+  el.guestStage.innerHTML =
+    `<div class="person-fig">${personSVG()}</div>` +
+    `<div class="speech">${t('guestReadyQ')}</div>`;
+}
+
+// --- Испытание: 5 задач; временный набор, глобальную статистику не трогаем ---
+function startGuestChallenge() {
+  const combos = [];
+  for (const a of GUEST_NUMS) for (const b of GUEST_NUMS) combos.push({ a, b });
+  const targets = shuffle(combos).slice(0, 5).map(c => ({ a: c.a, b: c.b, streak: 0, mt: 0, wrong: 0, last: 0 }));
+  startSession({ kind: 'guest', temp: true, progress: false, need: 1, targets, title: t('guestChallenge'), reward: 0 });
+  session.mood = GUEST_START_MOOD;
+  el.guestMood.classList.remove('hidden');
+  updateGuestFace();
+}
+// перерисовать лицо гостя по текущему настроению
+function updateGuestFace() {
+  el.guestMood.innerHTML = guestFaceSVG(session ? session.mood : GUEST_START_MOOD);
+  el.guestMood.classList.remove('bump');
+  void el.guestMood.offsetWidth;
+  el.guestMood.classList.add('bump');
+}
+// терпение кончилось — гость улетает без награды
+function guestFail() {
+  guestWaiting = false;
+  el.guestMood.classList.add('hidden');
+  scheduleGuest();
+  showMenu(t('guestGone'));
+}
+// все 5 верно — подарок: один особый праздник
+function giveGuestReward() {
+  guestWaiting = false;
+  el.guestMood.classList.add('hidden');
+  scheduleGuest();
+  const pool = SPECIAL_CELEBS.filter(e => ownedSpecials.indexOf(e) === -1);
+  const gift = pool.length ? pool[Math.floor(Math.random() * pool.length)]
+    : SPECIAL_CELEBS[Math.floor(Math.random() * SPECIAL_CELEBS.length)];
+  if (ownedSpecials.indexOf(gift) === -1) ownedSpecials.push(gift);
+  celebration = gift;
+  saveState();
+  showGuestReward(gift);
+}
+// экран награды (переиспользуем экран победы)
+function showGuestReward(gift) {
+  mode = null;
+  hideTimer();
+  el.winTitle.textContent = t('guestGift');
+  el.winText.textContent = t('guestGiftText', { e: gift });
+  el.winCorrect.textContent = 5;
+  el.winWrong.textContent = 0;
+  el.winCoins.textContent = '';
+  el.winTime.textContent = '';
+  hideAllScreens();
+  el.winScreen.classList.remove('hidden');
+  playCeleb(el.winCeleb);
+}
+
+// --- Рисованные фигуры (SVG) ---
+// лицо гостя: рот и брови меняются по настроению
+function guestFaceSVG(mood) {
+  const m = Math.max(0, Math.min(GUEST_MOOD_MAX, mood));
+  const f = m - GUEST_START_MOOD;                     // -3 .. +5
+  const cy = Math.max(46, Math.min(86, 64 + f * 4));  // изгиб рта: >64 улыбка, <64 грусть
+  const tears = m <= 1;
+  const brow = m <= 2;
+  const cheeks = m >= 6;
+  let s = '<svg viewBox="0 0 100 100" class="face-svg">';
+  s += '<circle cx="50" cy="50" r="42" fill="#ffd27f" stroke="#e0a94a" stroke-width="3"/>';
+  if (cheeks) s += '<circle cx="28" cy="60" r="7" fill="#ffb3b3"/><circle cx="72" cy="60" r="7" fill="#ffb3b3"/>';
+  s += '<circle cx="37" cy="45" r="5" fill="#3a2a10"/><circle cx="63" cy="45" r="5" fill="#3a2a10"/>';
+  if (brow) {
+    s += '<line x1="29" y1="33" x2="45" y2="39" stroke="#3a2a10" stroke-width="3" stroke-linecap="round"/>';
+    s += '<line x1="71" y1="33" x2="55" y2="39" stroke="#3a2a10" stroke-width="3" stroke-linecap="round"/>';
+  }
+  if (tears) {
+    s += '<path d="M35 51 q-4 8 0 12 q4 -4 0 -12" fill="#5bc8ff"/>';
+    s += '<path d="M65 51 q-4 8 0 12 q4 -4 0 -12" fill="#5bc8ff"/>';
+  }
+  s += `<path d="M32 64 Q50 ${cy} 68 64" fill="none" stroke="#3a2a10" stroke-width="5" stroke-linecap="round"/>`;
+  s += '</svg>';
+  return s;
+}
+// человек, который приносит задачи
+function personSVG() {
+  let s = '<svg viewBox="0 0 160 170" class="person-svg">';
+  s += '<rect x="50" y="90" width="60" height="66" rx="16" fill="#4f7cff"/>';        // тело
+  s += '<rect x="32" y="96" width="24" height="14" rx="7" fill="#ffd27f"/>';          // рука
+  s += '<rect x="104" y="96" width="24" height="14" rx="7" fill="#ffd27f"/>';         // рука
+  s += '<circle cx="80" cy="54" r="30" fill="#ffd27f" stroke="#e0a94a" stroke-width="3"/>'; // голова
+  s += '<path d="M50 48 q30 -36 60 0 q-12 -12 -30 -12 q-18 0 -30 12z" fill="#6b4a2b"/>';    // волосы
+  s += '<circle cx="70" cy="54" r="4" fill="#3a2a10"/><circle cx="90" cy="54" r="4" fill="#3a2a10"/>';
+  s += '<path d="M68 66 Q80 76 92 66" fill="none" stroke="#3a2a10" stroke-width="4" stroke-linecap="round"/>';
+  s += '</svg>';
+  return s;
 }
 
 // =================== СВОЙ ВЫБОР ===================
@@ -790,17 +1022,20 @@ function startSession(opts) {
   current = null;
   el.pauseBtn.textContent = t('pause');
   el.pauseBtn.classList.remove('is-paused');
-  el.pauseBtn.classList.toggle('hidden', !timerOn); // пауза есть только при таймере
+  el.pauseBtn.classList.toggle('hidden', !timerActive()); // пауза есть только при таймере
   el.answer.disabled = false;
   el.levelTitle.textContent = session.title;
   el.feedback.textContent = ' ';
   el.feedback.className = '';
+  el.guestMood.classList.add('hidden'); // лицо гостя — только в режиме гостя
   hideAllScreens();
   el.gameScreen.classList.remove('hidden');
   updateSessionStats();
   nextSessionQuestion();
 }
 
+// таймер: у гостя всегда выключен, иначе — по настройке
+function timerActive() { return timerOn && !(mode === 'session' && session && session.kind === 'guest'); }
 function sessionDone(f) { return session.temp ? (session.streak[key(f.a, f.b)] || 0) >= session.need : f.mastered; }
 function streakOf(f) { return session.temp ? (session.streak[key(f.a, f.b)] || 0) : f.streak; }
 function sessionPool() { return session.targets.filter(f => !sessionDone(f)); }
@@ -812,7 +1047,7 @@ function updateSessionStats() {
   el.total.textContent = tot;
   el.correct.textContent = session.log.filter(e => e.correct).length;
   el.wrong.textContent = session.log.filter(e => !e.correct).length;
-  el.missedWrap.classList.toggle('hidden', !timerOn);
+  el.missedWrap.classList.toggle('hidden', !timerActive());
   el.missed.textContent = session.missed;
 }
 
@@ -845,6 +1080,22 @@ function submitSession() {
   current.last = isCorrect ? 1 : 3; // для карты: зелёный / красный
   session.log.push({ a: current.a, b: current.b, answer: value, correct: isCorrect });
 
+  if (session.kind === 'guest') {
+    if (isCorrect) {
+      session.streak[key(current.a, current.b)] = (session.streak[key(current.a, current.b)] || 0) + 1;
+      session.mood = Math.min(GUEST_MOOD_MAX, session.mood + 1); // радуется сильнее
+      updateGuestFace();
+      flash(t('guestGood'), 'ok big');
+    } else {
+      session.mood -= 1;            // грустнеет; задачка не засчитана — вернётся снова
+      updateGuestFace();
+      if (session.mood <= 0) { updateSessionStats(); guestFail(); return; } // терпение кончилось
+      flash(t('guestBad'), 'bad');
+    }
+    updateSessionStats();
+    return;
+  }
+
   if (isCorrect) {
     if (session.temp) session.streak[key(current.a, current.b)] = (session.streak[key(current.a, current.b)] || 0) + 1;
     else { current.streak++; if (current.streak >= session.need) current.mastered = true; }
@@ -874,6 +1125,7 @@ function submitSession() {
 }
 
 function finishSession() {
+  if (session.kind === 'guest') { giveGuestReward(); return; }
   if (session.kind === 'dictLearn') {
     dict.roundList = session.targets.slice();
     beginDictRound(t('dictRedoTitle'));
@@ -1054,8 +1306,14 @@ function celebSound() {
     o.start(); o.stop(audioCtx.currentTime + 0.45);
   } catch (e) { /* без звука */ }
 }
+// особые сценки праздников: эмодзи → функция, строящая живую сценку
+const CELEB_SCENES = { '🎢': coasterScene };
+
 function playCeleb(container) {
   container.innerHTML = '';
+  container.classList.toggle('scene', !!CELEB_SCENES[celebration]);
+  const scene = CELEB_SCENES[celebration];
+  if (scene) { scene(container); celebSound(); return; }
   for (let i = 0; i < 9; i++) {
     const s = document.createElement('span');
     s.className = 'cfx';
@@ -1064,6 +1322,133 @@ function playCeleb(container) {
     container.appendChild(s);
   }
   celebSound();
+}
+
+// СЦЕНКА: американские горки — вагончик с твоим лицом (в шлеме) катится по волнистым рельсам
+// путь совпадает с offset-path в CSS (.cart-mover) — координаты 1:1 с пикселями .coaster
+const COASTER_PATH = 'M0 130 C40 130 52 55 98 55 S160 145 206 145 S284 62 330 88';
+function coasterScene(container) {
+  container.innerHTML =
+    '<div class="coaster">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        '<defs>' +
+          '<linearGradient id="csky" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0" stop-color="#6cc6ff"/><stop offset="1" stop-color="#d6f2ff"/>' +
+          '</linearGradient>' +
+          '<linearGradient id="crail" x1="0" y1="0" x2="1" y2="0">' +
+            '<stop offset="0" stop-color="#ff5da2"/><stop offset="0.5" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ffd93b"/>' +
+          '</linearGradient>' +
+        '</defs>' +
+        '<rect x="0" y="0" width="320" height="200" fill="url(#csky)"/>' +
+        // солнышко с лучами (без анимации)
+        '<g class="sun"><circle cx="272" cy="40" r="18" fill="#ffd93b"/>' +
+          '<g stroke="#ffd93b" stroke-width="3" stroke-linecap="round">' +
+            '<line x1="272" y1="10" x2="272" y2="2"/><line x1="272" y1="70" x2="272" y2="78"/>' +
+            '<line x1="242" y1="40" x2="234" y2="40"/><line x1="302" y1="40" x2="310" y2="40"/>' +
+            '<line x1="250" y1="18" x2="245" y2="13"/><line x1="294" y1="62" x2="299" y2="67"/>' +
+            '<line x1="294" y1="18" x2="299" y2="13"/><line x1="250" y1="62" x2="245" y2="67"/>' +
+          '</g></g>' +
+        // облака
+        '<g class="cloud cloudA" fill="#ffffff"><ellipse cx="60" cy="45" rx="26" ry="14"/><ellipse cx="82" cy="48" rx="20" ry="12"/></g>' +
+        '<g class="cloud cloudB" fill="#ffffff"><ellipse cx="180" cy="30" rx="20" ry="11"/><ellipse cx="196" cy="33" rx="15" ry="9"/></g>' +
+        // дальние холмы + земля
+        '<path d="M0 176 Q70 140 150 176 T320 172 V200 H0 Z" fill="#8fd884"/>' +
+        '<rect x="0" y="182" width="320" height="18" fill="#5fb85a"/>' +
+        // деревья
+        '<g><rect x="20" y="158" width="6" height="26" fill="#7a5230"/><circle cx="23" cy="152" r="14" fill="#3ea35a"/><circle cx="14" cy="158" r="10" fill="#46b365"/><circle cx="32" cy="158" r="10" fill="#46b365"/></g>' +
+        '<g><rect x="300" y="160" width="6" height="24" fill="#7a5230"/><circle cx="303" cy="154" r="12" fill="#3ea35a"/><circle cx="295" cy="160" r="9" fill="#46b365"/><circle cx="311" cy="160" r="9" fill="#46b365"/></g>' +
+        // опоры горки: верх каждой рассчитан точно по кривой рельса (COASTER_PATH)
+        '<g stroke="#7a5230" stroke-width="5">' +
+          '<line x1="47" y1="93" x2="47" y2="182"/>' +
+          '<line x1="98" y1="55" x2="98" y2="182"/>' +
+          '<line x1="152" y1="100" x2="152" y2="182"/>' +
+          '<line x1="206" y1="145" x2="206" y2="182"/>' +
+          '<line x1="268" y1="107" x2="268" y2="182"/>' +
+        '</g>' +
+        // рельсы (тёмная подложка + яркая линия)
+        '<path d="' + COASTER_PATH + '" fill="none" stroke="#3a2a10" stroke-width="9" stroke-linecap="round"/>' +
+        '<path d="' + COASTER_PATH + '" fill="none" stroke="url(#crail)" stroke-width="5" stroke-linecap="round"/>' +
+        // ТОЛПА зрителей — рисуется последней, поэтому стоит ПЕРЕД столбами
+        coasterCrowd() +
+      '</svg>' +
+      // непрерывная вереница вагончиков (много поездов подряд, равные промежутки)
+      coasterCarts() +
+    '</div>';
+}
+// два поезда по три вагончика; поезда на равном расстоянии друг от друга (полкруга)
+function coasterCarts() {
+  const DUR = 4;                 // длительность круга (совпадает с ride в CSS)
+  const TRAINS = 2, PER_TRAIN = 3;
+  const CAR_GAP = 0.42;          // промежуток между вагонами внутри поезда (сек)
+  const TRAIN_GAP = DUR / TRAINS; // поезда на равном расстоянии по кругу (2 с = полкруга)
+  const capColors = ['#e23b3b', '#2b6cb0', '#2f855a', '#6b46c1', '#d69e2e'];
+  let s = '';
+  for (let tr = 0; tr < TRAINS; tr++) {
+    for (let c = 0; c < PER_TRAIN; c++) {
+      const delay = -(tr * TRAIN_GAP + c * CAR_GAP).toFixed(3);
+      const cap = Math.random() < 0.5; // случайно: в этот раз кепка у случайных вагончиков
+      const capColor = capColors[Math.floor(Math.random() * capColors.length)]; // и цвет случайный
+      s += '<div class="cart-mover" style="animation-delay:' + delay + 's">' +
+        '<div class="cart">' + cartSVG(true, cap, capColor) + '</div></div>'; // все вагончики синие
+    }
+  }
+  return s;
+}
+// плотная толпа человечков по всей земле (три ряда для «глубины»; ноги стоят на траве)
+function coasterCrowd() {
+  const shirts = ['#e23b3b', '#4f7cff', '#3ea35a', '#ff8a3d', '#9b5de5', '#ff5da2', '#00a3a3', '#f4b400'];
+  const flags = ['#ffd93b', '#ff5da2', '#4f7cff', '#3ea35a', '#ffffff', '#ff8a3d'];
+  // задний ряд рисуется первым (выше), передний — последним (перекрывает)
+  const rows = [{ dy: -7, x0: 5 }, { dy: -3, x0: 9 }, { dy: 1, x0: 6 }];
+  let s = '';
+  let i = 0;
+  for (const r of rows) {
+    for (let x = r.x0; x <= 317; x += 8) {
+      const jd = ((i * 0.17) % 0.6).toFixed(2);
+      const wd = ((i * 0.11) % 0.7).toFixed(2);
+      s += fanSVG(x, shirts[i % shirts.length], flags[i % flags.length], r.dy, jd, wd);
+      i++;
+    }
+  }
+  return s;
+}
+// один вагончик; пассажир без шлема — некоторые в кепке, некоторые без.
+// rider — цвет вагончика; cap/capColor — кепка (или без неё)
+function cartSVG(rider, cap, capColor) {
+  const body = rider ? '#4f7cff' : '#ff8a3d';
+  let s = '<svg class="cart-svg" viewBox="0 0 64 58" aria-hidden="true">';
+  // голова
+  s += '<circle cx="32" cy="30" r="11" fill="#ffd27f"/>' +
+    '<circle cx="27" cy="29" r="2" fill="#3a2a10"/><circle cx="37" cy="29" r="2" fill="#3a2a10"/>' +
+    '<path d="M26 33 Q32 40 38 33" fill="none" stroke="#3a2a10" stroke-width="2.4" stroke-linecap="round"/>';
+  // кепка (у части пассажиров): купол + козырёк
+  if (cap) {
+    s += '<path d="M21 28 a11 11 0 0 1 22 0 z" fill="' + capColor + '"/>' +
+      '<rect x="30" y="26" width="16" height="3.5" rx="1.75" fill="' + capColor + '"/>';
+  }
+  s += '<rect x="9" y="40" width="46" height="13" rx="5" fill="' + body + '"/>' +
+    '<rect x="9" y="40" width="46" height="4" rx="2" fill="rgba(255,255,255,0.4)"/>' +
+    '<circle cx="21" cy="54" r="4.5" fill="#222"/><circle cx="43" cy="54" r="4.5" fill="#222"/>' +
+    '</svg>';
+  return s;
+}
+// зритель-человечек с флажком (x — центр по земле, shirt — одежда, flag — цвет флажка,
+// dy — сдвиг по вертикали для ряда, jd/wd — задержки прыжка и махания флагом)
+// порядок: ноги → тело → руки → голова (сверху, всегда видна) → флажок
+function fanSVG(x, shirt, flag, dy, jd, wd) {
+  const y = n => n + dy;
+  return '<g class="fan" style="animation-delay:' + jd + 's">' +
+    '<line x1="' + x + '" y1="' + y(185) + '" x2="' + (x - 4) + '" y2="' + y(192) + '" stroke="#333" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<line x1="' + x + '" y1="' + y(185) + '" x2="' + (x + 4) + '" y2="' + y(192) + '" stroke="#333" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<line x1="' + x + '" y1="' + y(176) + '" x2="' + x + '" y2="' + y(186) + '" stroke="' + shirt + '" stroke-width="3.6" stroke-linecap="round"/>' +
+    '<line x1="' + x + '" y1="' + y(178) + '" x2="' + (x - 6) + '" y2="' + y(183) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<line x1="' + x + '" y1="' + y(178) + '" x2="' + (x + 7) + '" y2="' + y(170) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<circle cx="' + x + '" cy="' + y(171) + '" r="4.5" fill="#c98a3c" stroke="#7a5320" stroke-width="1"/>' + // голова (потемнее + обводка)
+    '<g class="flagwave" style="animation-delay:' + wd + 's">' +
+      '<line x1="' + (x + 7) + '" y1="' + y(170) + '" x2="' + (x + 7) + '" y2="' + y(155) + '" stroke="#7a5230" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<polygon points="' + (x + 7) + ',' + y(155) + ' ' + (x + 7) + ',' + y(164) + ' ' + (x + 19) + ',' + y(159) + '" fill="' + flag + '"/>' +
+    '</g>' +
+    '</g>';
 }
 
 // =================== ТАЙМЕР НА ОТВЕТ ===================
@@ -1170,7 +1555,7 @@ function renderQuestion() {
   updateSubmitState();
   el.answer.focus();
   qStartTime = Date.now();
-  if (timerOn) startTimer(); else hideTimer();
+  if (timerActive()) startTimer(); else hideTimer();
 }
 function advance() {
   if (mode === 'session') nextSessionQuestion();
@@ -1220,7 +1605,10 @@ function togglePause() {
 el.form.addEventListener('submit', onSubmit);
 el.pauseBtn.addEventListener('click', togglePause);
 el.backBtn.addEventListener('click', () => {
-  if (mode === 'session' && session && session.log.length) {
+  if (session && session.kind === 'guest') {
+    el.guestMood.classList.add('hidden'); // прерванный гость — остаётся ждать в меню
+    showMenu();
+  } else if (mode === 'session' && session && session.log.length) {
     showResults(t('yourAnswers'), session.log, session.timeMs, session.answers, 0);
   } else {
     showMenu();
@@ -1235,6 +1623,11 @@ el.dictBackBtn.addEventListener('click', () => showMenu());
 el.dictStartBtn.addEventListener('click', startDictation);
 el.shopBtn.addEventListener('click', showShop);
 el.shopBackBtn.addEventListener('click', () => showMenu());
+el.guestBanner.addEventListener('click', startGuestSearch);
+el.guestExitBtn.addEventListener('click', exitGuestSearch);
+el.menuScreen.addEventListener('click', onMenuDoorClick, true); // перехват «дверей» до перехода
+el.guestBackBtn.addEventListener('click', () => showMenu());
+el.guestReadyBtn.addEventListener('click', startGuestChallenge);
 el.customBackBtn.addEventListener('click', () => showMenu());
 el.customStartBtn.addEventListener('click', startCustom);
 el.settingsBtn.addEventListener('click', showSettings);
@@ -1259,3 +1652,4 @@ applyOneTimeFix();
 updatePet();
 applyLang();
 showMenu();
+scheduleGuest();

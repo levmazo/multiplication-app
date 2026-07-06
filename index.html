@@ -18,9 +18,19 @@
     <h1 data-i18n="menuTitle">✖️ Таблица умножения</h1>
     <p class="overall"><span data-i18n="learnedTotal">Выучено всего:</span> <span id="overallMastered">0</span> <span data-i18n="of">из</span> <span id="overallTotal">169</span></p>
     <p class="coin-balance"><span id="coinBalance">0</span></p>
+    <button id="guestBanner" class="guest-banner hidden" type="button" data-i18n="guestBanner">🚪 Гость прилетел!</button>
+    <p id="guestSearchHint" class="guest-search-hint hidden" data-i18n="guestSearchHint">Открывай двери — за одной прячется гость! 🚪</p>
+    <button id="guestExitBtn" class="guest-exit hidden" type="button" data-i18n="guestExit">← Выйти из поиска</button>
     <div id="levelMessage" class="level-message"></div>
     <div id="levelButtons" class="level-grid"></div>
     <button id="shopBtn" type="button" data-i18n="shopBtn">🛒 Магазин</button>
+  </main>
+
+  <!-- ЭКРАН ГОСТЯ: человек с доской «Готов?» -->
+  <main id="guest-screen" class="hidden">
+    <button id="guestBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <div id="guestStage" class="guest-stage"></div>
+    <button id="guestReadyBtn" type="button" data-i18n="guestReady">Готов!</button>
   </main>
 
   <!-- НАСТРОЙКИ -->
@@ -87,6 +97,9 @@
     <div id="shopLegendary" class="shop-grid"></div>
     <h2 data-i18n="celebsTitle">Праздники победы</h2>
     <div id="shopCelebs" class="shop-grid"></div>
+    <h2 data-i18n="specialsTitle">Особые праздники (от гостя)</h2>
+    <p id="specialsEmpty" class="hint" data-i18n="specialsEmpty">Пока пусто — помоги гостю, и он подарит особый праздник.</p>
+    <div id="shopSpecials" class="shop-grid"></div>
   </main>
 
   <!-- ЭКРАН СВОЕГО ВЫБОРА -->
@@ -128,6 +141,7 @@
   <main id="game-screen" class="hidden">
     <button id="backBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
     <h1 id="levelTitle">Уровень</h1>
+    <div id="guestMood" class="guest-mood hidden"></div>
 
     <section class="stats">
       <div class="stat-big"><span data-i18n="learned">Выучено:</span> <span id="mastered">0</span> <span data-i18n="of">из</span> <span id="total">0</span></div>
