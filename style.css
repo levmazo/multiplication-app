@@ -485,7 +485,6 @@ button:disabled {
 .shop-emoji { font-size: 1.8rem; position: relative; }
 .shop-emoji .pet-count { font-size: 0.8rem; font-weight: 800; vertical-align: super; }
 .shop-price { font-size: 0.78rem; opacity: 0.95; }
-.shop-bonus { font-size: 0.72rem; font-weight: 800; color: #fde047; }
 .shop-hint { font-size: 0.66rem; opacity: 0.9; }
 .pets-owned { font-size: 0.95rem; font-weight: 700; margin: 0 0 8px; opacity: 0.95; }
 .shop-item .buy-btn {
@@ -497,7 +496,6 @@ button:disabled {
   flex: 1; font-size: 0.66rem; padding: 5px 2px; border: none; border-radius: 7px;
   background: rgba(255, 255, 255, 0.18); color: #fff; font-weight: 700;
 }
-.role-btn.on.role-bonus { background: #fde047; color: #1e293b; }
 .role-btn.on.role-hint { background: #38bdf8; color: #08233a; }
 
 /* питомцы сидят полоской внизу экрана (под кнопками, ничего не перекрывают) */

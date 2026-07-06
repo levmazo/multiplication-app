@@ -21,17 +21,17 @@ function factorScore(f) {
 function factValue(a, b) { return Math.min(factorScore(a), factorScore(b)); }
 function rewardForFacts(list) { return list.reduce((s, f) => s + factValue(f.a, f.b), 0); }
 
-// --- Питомцы: цена, бонус (%), способ подсказки, легендарность ---
+// --- Питомцы: цена, способ подсказки, легендарность ---
 const REGULAR_PETS = [
-  { emoji: '🐱', price: 70,  bonus: 1,  hint: 'frame' },
-  { emoji: '🐶', price: 150, bonus: 10, hint: 'neighbor' },
-  { emoji: '🐉', price: 220, bonus: 15, hint: 'skip' },
-  { emoji: '🦄', price: 400, bonus: 20, hint: 'add' },
+  { emoji: '🐱', price: 70,  hint: 'frame' },
+  { emoji: '🐶', price: 150, hint: 'neighbor' },
+  { emoji: '🐉', price: 220, hint: 'skip' },
+  { emoji: '🦄', price: 400, hint: 'add' },
 ];
 const LEGENDARY_PETS = [
-  { emoji: '🦖', price: 5000,  bonus: 50,  hint: 'five', legendary: true },
-  { emoji: '🐲', price: 7000,  bonus: 75,  hint: 'ten',  legendary: true },
-  { emoji: '🦅', price: 12000, bonus: 150, hint: 'half', legendary: true },
+  { emoji: '🦖', price: 5000,  hint: 'five', legendary: true },
+  { emoji: '🐲', price: 7000,  hint: 'ten',  legendary: true },
+  { emoji: '🦅', price: 12000, hint: 'half', legendary: true },
 ];
 const ALL_PETS = REGULAR_PETS.concat(LEGENDARY_PETS);
 const petByEmoji = {};
@@ -79,10 +79,10 @@ const STR = {
     winDictTitle: '🎉 Диктант сдан!', winDictText: 'Ты прошёл диктант без ошибок!',
     rightAns: 'верно: {r}', coinsPlus: '+{n} евро', currency: 'евро',
     shopBtn: '🛒 Магазин', shopTitle: '🛒 Магазин', petsTitle: 'Питомцы',
-    petsHint: 'Питомцы сидят рядом. Выбери одного на «Бонус» и другого на «Подсказки».',
+    petsHint: 'Питомцы сидят рядом. Выбери одного, кто будет давать подсказки.',
     petsOwned: 'У тебя питомцев: {n}', legendaryTitle: 'Легендарные питомцы', celebsTitle: 'Праздники победы',
     buy: 'Купить', notEnough: 'Мало монет', free: 'бесплатно', active: 'Активно', select: 'Выбрать',
-    roleBonus: 'Бонус', roleHint: 'Подсказки', oneRole: 'Одному питомцу — одна роль',
+    roleHint: 'Подсказки',
     hintLvl: '💡 ур.{n}',
     petHint: '{e} {a}×{b}: {sum}',
     h_frame: 'возьми {b}, {a} раз',
@@ -124,10 +124,10 @@ const STR = {
     winDictTitle: '🎉 Dictee gehaald!', winDictText: 'Je hebt het dictee zonder fouten gedaan!',
     rightAns: 'goed: {r}', coinsPlus: '+{n} euro', currency: 'euro',
     shopBtn: '🛒 Winkel', shopTitle: '🛒 Winkel', petsTitle: 'Huisdieren',
-    petsHint: 'Huisdieren zitten naast je. Kies één voor «Bonus» en één voor «Hints».',
+    petsHint: 'Huisdieren zitten naast je. Kies er één die hints geeft.',
     petsOwned: 'Jouw huisdieren: {n}', legendaryTitle: 'Legendarische huisdieren', celebsTitle: 'Overwinningsfeestjes',
     buy: 'Kopen', notEnough: 'Te weinig munten', free: 'gratis', active: 'Actief', select: 'Kiezen',
-    roleBonus: 'Bonus', roleHint: 'Hints', oneRole: 'Eén huisdier, één rol',
+    roleHint: 'Hints',
     hintLvl: '💡 niv.{n}',
     petHint: '{e} {a}×{b}: {sum}',
     h_frame: 'neem {b}, {a} keer',
@@ -169,10 +169,10 @@ const STR = {
     winDictTitle: '🎉 Dictation passed!', winDictText: 'You passed the dictation with no mistakes!',
     rightAns: 'correct: {r}', coinsPlus: '+{n} euro', currency: 'euro',
     shopBtn: '🛒 Shop', shopTitle: '🛒 Shop', petsTitle: 'Pets',
-    petsHint: 'Pets sit with you. Pick one for «Bonus» and another for «Hints».',
+    petsHint: 'Pets sit with you. Pick one to give hints.',
     petsOwned: 'Your pets: {n}', legendaryTitle: 'Legendary pets', celebsTitle: 'Victory celebrations',
     buy: 'Buy', notEnough: 'Not enough coins', free: 'free', active: 'Active', select: 'Select',
-    roleBonus: 'Bonus', roleHint: 'Hints', oneRole: 'One pet, one role',
+    roleHint: 'Hints',
     hintLvl: '💡 lvl {n}',
     petHint: '{e} {a}×{b}: {sum}',
     h_frame: 'take {b}, {a} times',
