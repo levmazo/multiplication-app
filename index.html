@@ -24,6 +24,7 @@
     <div id="levelMessage" class="level-message"></div>
     <div id="levelButtons" class="level-grid"></div>
     <button id="shopBtn" type="button" data-i18n="shopBtn">🛒 Магазин</button>
+    <button id="myPetsBtn" type="button" data-i18n="myPetsBtn">🐾 Мои питомцы</button>
   </main>
 
   <!-- ЭКРАН ГОСТЯ: человек с доской «Готов?» -->
@@ -88,6 +89,7 @@
     <button id="shopBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
     <h1 data-i18n="shopTitle">🛒 Магазин</h1>
     <p class="coin-balance"><span id="shopBalance">0</span></p>
+    <button id="myPetsShopBtn" type="button" data-i18n="myPetsBtn">🐾 Мои питомцы</button>
     <div id="shopMessage" class="level-message"></div>
     <h2 data-i18n="petsTitle">Питомцы</h2>
     <p class="hint" data-i18n="petsHint">Питомцы сидят рядом. Выбери одного, кто будет давать подсказки.</p>
@@ -184,7 +186,13 @@
     <button id="winMenuBtn" data-i18n="menuBtn">В меню</button>
   </section>
 
-  <div id="petCompanion" class="pet-companion"></div>
+  <!-- ЭКРАН «МОИ ПИТОМЦЫ»: коллекция посередине -->
+  <main id="pets-screen" class="hidden">
+    <button id="petsBackBtn" class="back-btn" type="button" data-i18n="backMenu">← В меню</button>
+    <h1 data-i18n="myPetsTitle">🐾 Мои питомцы</h1>
+    <p id="petsEmpty" class="hint" data-i18n="petsEmpty">Питомцев пока нет — купи их в магазине.</p>
+    <div id="petsList" class="pets-list"></div>
+  </main>
 
   <script src="game.js"></script>
 </body>

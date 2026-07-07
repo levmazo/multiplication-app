@@ -542,19 +542,14 @@ button:disabled {
 .role-btn.on.role-hint { background: #38bdf8; color: #08233a; }
 
 /* питомцы сидят полоской внизу экрана (под кнопками, ничего не перекрывают) */
-.pet-companion {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
+/* экран «Мои питомцы»: коллекция по центру */
+.pets-list {
   display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end;
-  gap: 2px 6px; padding: 4px 6px;
-  max-height: 24vh; overflow: hidden;
-  pointer-events: none; z-index: 5;
-  background: linear-gradient(to top, rgba(0,0,0,0.25), rgba(0,0,0,0));
+  gap: 10px 14px; padding: 16px; margin-top: 8vh;
 }
-.pet-companion:empty { display: none; }
 .pet-one {
   display: inline-flex; flex-direction: column; align-items: center; line-height: 1;
-  font-size: 1.5rem;
+  font-size: 3rem;
 }
 .pet-label {
   font-size: 0.5rem; font-weight: 800; padding: 1px 4px; border-radius: 6px;
@@ -606,3 +601,74 @@ button:disabled {
    на узких экранах сценка ужимается целиком, вагончик остаётся на рельсах */
 .cart { transform: translate(-32px, -52px); }         /* колёса вагончика на линию рельса */
 .cart-svg { width: 64px; height: 58px; display: block; }
+
+/* --- Сценки: парк аттракционов (карусель/колесо) и цирк --- */
+/* общий бокс сценки (тот же размер, что у .coaster) */
+.scene-box {
+  position: relative; width: 320px; height: 200px; max-width: 92vw;
+  margin: 0 auto; overflow: hidden; border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+}
+
+/* Оба аттракциона живут по единому циклу --cycle: вход (0–15%) → 4 оборота (15–80%)
+   → стоп → выход (85–100%). Карусель вдвое медленнее колеса. */
+.parkride.carousel { --cycle: 64s; }
+.parkride.ferris { --cycle: 32s; }
+
+/* КОЛЕСО: обод вращается вокруг оси, капсулы контр-вращаются (висят вертикально) */
+.ride-spin { transform-box: fill-box; transform-origin: center; animation: ridespin var(--cycle) linear infinite; }
+@keyframes ridespin {
+  0%,15% { transform: rotate(0deg); }        /* стоит, пока входят */
+  80% { transform: rotate(1440deg); }        /* 4 оборота */
+  100% { transform: rotate(1440deg); }       /* стоп + выходят */
+}
+.ride-counter { transform-box: fill-box; transform-origin: center; animation: ridecounter var(--cycle) linear infinite; }
+@keyframes ridecounter {
+  0%,15% { transform: rotate(0deg); }
+  80% { transform: rotate(-1440deg); }
+  100% { transform: rotate(-1440deg); }
+}
+/* КАРУСЕЛЬ: лошадки едут по горизонтальному кругу (offset-path), всегда вертикально */
+.car-horse {
+  offset-path: path('M114 170 A46 7 0 1 0 206 170 A46 7 0 1 0 114 170 Z');
+  offset-rotate: 0deg;
+  animation: carorbit var(--cycle) linear infinite;
+}
+@keyframes carorbit {
+  0% { offset-distance: calc((var(--p) + 0) * 1%); }
+  15% { offset-distance: calc((var(--p) + 0) * 1%); }    /* стоит, пока входят */
+  80% { offset-distance: calc((var(--p) + 400) * 1%); }  /* 4 круга */
+  100% { offset-distance: calc((var(--p) + 400) * 1%); } /* стоп + выходят */
+}
+/* седок появляется, когда вошёл; исчезает, когда пошёл на выход */
+.car-rider { animation: carRider var(--cycle) linear infinite; }
+@keyframes carRider { 0% { opacity: 0; } 14% { opacity: 1; } 84% { opacity: 1; } 90%,100% { opacity: 0; } }
+/* ходоки: входят из правого угла (0–14%), выходят в левый угол (86–100%) */
+.car-in { transform-box: fill-box; animation: carIn var(--cycle) ease-in-out infinite; }
+.car-out { transform-box: fill-box; animation: carOut var(--cycle) ease-in-out infinite; }
+@keyframes carIn {
+  0% { opacity: 1; transform: translate(146px,10px); }   /* правый нижний угол */
+  13% { opacity: 1; transform: translate(0,0); }         /* дошёл до карусели */
+  15%,100% { opacity: 0; transform: translate(0,0); }    /* сел */
+}
+@keyframes carOut {
+  0%,85% { opacity: 0; transform: translate(0,0); }
+  87% { opacity: 1; transform: translate(0,0); }         /* слез с карусели */
+  99% { opacity: 1; transform: translate(-146px,10px); } /* ушёл в левый угол */
+  100% { opacity: 0; transform: translate(-146px,10px); }
+}
+
+/* Цирк: крест-фейд «снаружи ⇄ внутри», цикл 14с */
+.circus-out { animation: circusOut 14s linear infinite; }
+.circus-in { animation: circusIn 14s linear infinite; }
+@keyframes circusOut { 0%,18% { opacity: 1; } 25%,90% { opacity: 0; } 96%,100% { opacity: 1; } }
+@keyframes circusIn { 0%,18% { opacity: 0; } 25%,90% { opacity: 1; } 96%,100% { opacity: 0; } }
+/* люди заходят в шатёр (в первые ~2.5с, пока виден слой «снаружи») */
+.enterer { transform-box: fill-box; animation: circusEnter 14s ease-out infinite; }
+@keyframes circusEnter { 0% { transform: translateX(0); } 18%,100% { transform: translateX(var(--dx)); } }
+/* канатоходец: едет по провисающему канату до конца и обратно (offset-path = кривая каната) */
+.rope-walker { offset-path: path('M96 93 Q160 117 224 93'); offset-rotate: 0deg; animation: ropeWalk 4.5s ease-in-out infinite alternate; }
+@keyframes ropeWalk { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+/* сидящие зрители на трибунах чуть подпрыгивают от радости */
+.cfan { transform-box: fill-box; transform-origin: center bottom; animation: cfanbob 0.7s ease-in-out infinite; }
+@keyframes cfanbob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
