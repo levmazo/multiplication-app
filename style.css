@@ -664,3 +664,88 @@ button:disabled {
 /* сидящие зрители на трибунах чуть подпрыгивают от радости */
 .cfan { transform-box: fill-box; transform-origin: center bottom; animation: cfanbob 0.7s ease-in-out infinite; }
 @keyframes cfanbob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+/* --- Сценка: медаль (цикл 9с) --- */
+.medal-bearer { animation: bearerWalk 9s ease-in-out infinite; }
+@keyframes bearerWalk {
+  0% { transform: translateX(60px); opacity: 0; }    /* в правой толпе */
+  8% { opacity: 1; }
+  40% { transform: translateX(0); opacity: 1; }      /* подошёл к тебе */
+  56% { transform: translateX(0); }                  /* надевает медаль */
+  92% { transform: translateX(60px); opacity: 1; }   /* уходит обратно */
+  100% { transform: translateX(60px); opacity: 0; }
+}
+.bearer-medal { animation: bearerMedal 9s ease-in-out infinite; }
+@keyframes bearerMedal { 0%,46% { opacity: 1; } 50%,100% { opacity: 0; } }   /* медаль в руке до передачи */
+.you-medal { animation: youMedal 9s ease-in-out infinite; }
+@keyframes youMedal { 0%,49% { opacity: 0; } 52%,100% { opacity: 1; } }      /* медаль на тебе после награждения */
+.you-hop { transform-box: fill-box; transform-origin: center bottom; animation: youHop 9s ease-in-out infinite; }
+@keyframes youHop { 0%,50% { transform: translateY(0); } 55% { transform: translateY(-8px); } 62%,100% { transform: translateY(0); } }
+
+/* --- Сценка: бомба (цикл 7с) --- */
+.bomb-guy { transform-box: fill-box; transform-origin: center; animation: bombGuy 7s ease-in-out infinite; }
+@keyframes bombGuy {
+  0% { transform: translateX(-110px); opacity: 1; }        /* приходит слева — МЕДЛЕННО */
+  32% { transform: translateX(0); }                        /* дошёл */
+  42% { transform: translateX(0); }                        /* быстро поставил и поджёг */
+  56% { transform: translateX(48px); }                     /* бежит вправо — БЫСТРО, без остановки */
+  61% { transform: translateX(66px) translateY(-8px) rotate(50deg); }  /* взрыв догнал на бегу */
+  80% { transform: translateX(255px) translateY(-235px) rotate(920deg); opacity: 1; } /* улетает за край, продолжая */
+  86% { transform: translateX(285px) translateY(-265px) rotate(1020deg); opacity: 0; }
+  100% { transform: translateX(-110px); opacity: 0; }
+}
+.bomb-obj { transform-box: fill-box; transform-origin: center; animation: bombObj 7s linear infinite; }
+@keyframes bombObj {
+  0%,32% { opacity: 0; }
+  34% { opacity: 1; }                                       /* поставлена */
+  55% { opacity: 1; transform: rotate(0deg); }
+  58% { transform: rotate(6deg); }
+  60% { opacity: 0; }                                       /* взорвалась */
+  100% { opacity: 0; }
+}
+.fuse-spark { animation: fuseSpark 0.16s steps(2) infinite; }
+@keyframes fuseSpark { 0% { opacity: 1; } 100% { opacity: 0.35; } }
+.blast { transform-box: fill-box; transform-origin: center; animation: blast 7s ease-out infinite; }
+@keyframes blast {
+  0%,59% { opacity: 0; transform: scale(0.2); }
+  62% { opacity: 1; transform: scale(1); }
+  70% { opacity: 1; transform: scale(1.25); }
+  78% { opacity: 0; transform: scale(1.45); }
+  100% { opacity: 0; transform: scale(0.2); }
+}
+
+/* --- Сценка: комета — ты гуляешь, кометы падают по диагонали --- */
+.comet-you { transform-box: fill-box; animation: youStroll 5s ease-in-out infinite alternate; }
+@keyframes youStroll { from { transform: translateX(-42px); } to { transform: translateX(42px); } }
+.comet { transform-box: fill-box; animation: cometFall 2.6s linear infinite; }
+@keyframes cometFall {
+  0% { transform: translate(var(--sx), -30px); opacity: 0; }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(calc(var(--sx) - 150px), 210px); opacity: 0; }
+}
+
+/* --- Сценка: шарики — взлетают вверх --- */
+.balloon { transform-box: fill-box; animation: balloonRise 4.5s linear infinite; }
+@keyframes balloonRise {
+  0% { transform: translateY(22px); opacity: 0; }
+  8% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(-215px); opacity: 0; }
+}
+
+/* --- Сценка: фейерверк — снаряд взлетает и взрывается в небе --- */
+.fw-shell { transform-box: fill-box; animation: fwShell 2.4s ease-out infinite; }
+@keyframes fwShell {
+  0% { transform: translateY(0); opacity: 1; }
+  30% { transform: translateY(-104px); opacity: 1; }   /* пролетел чуть-чуть */
+  33%,100% { opacity: 0; }
+}
+.fw-burst { transform-box: fill-box; transform-origin: center; animation: fwBurst 2.4s ease-out infinite; }
+@keyframes fwBurst {
+  0%,31% { opacity: 0; transform: scale(0.2); }
+  37% { opacity: 1; transform: scale(1); }
+  56% { opacity: 1; transform: scale(1.15); }
+  72% { opacity: 0; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(0.2); }
+}

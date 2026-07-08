@@ -39,8 +39,16 @@ function petLevel(emoji) { return ALL_PETS.findIndex(p => p.emoji === emoji) + 1
 const CELEBS = [
   { emoji: '🎉', price: 0 },
   { emoji: '✨', price: 40 },
-  { emoji: '🎆', price: 80 },
   { emoji: '🌈', price: 120 },
+  // переехали из особых: простые — 120, эффектные — 200
+  { emoji: '⭐', price: 120 },
+  { emoji: '🎇', price: 120 },
+  { emoji: '💤', price: 120 },
+  { emoji: '🪅', price: 200 },
+  { emoji: '🥳', price: 200 },
+  { emoji: '🪩', price: 200 },
+  { emoji: '🍾', price: 200 },
+  { emoji: '🥂', price: 200 },
 ];
 
 // =================== ПЕРЕВОДЫ ===================
@@ -51,7 +59,7 @@ const STR = {
     settingsTitle: 'Settings', langSection: 'Язык', timerWord: 'Таймер', settingsBack: '← Обратно',
     mapTitle: 'Карта', mapTap: 'смотреть', mapBack: '← Обратно', realMap: 'Настоящая карта', gridMap: 'Сетка',
     guestBanner: '🚪 Гость прилетел!', guestTitle: '🚪 Гость прилетел!', guestDoorHint: 'Найди дверь и открой её.',
-    guestChallenge: 'Помоги гостю: реши 15 задач', guestGone: 'Гость улетел 😔 (кончилось терпение)',
+    guestChallenge: 'Помоги гостю: реши 5 задач', guestGone: 'Гость улетел 😔 (кончилось терпение)',
     guestSearchHint: 'Открывай двери — за одной прячется гость! 🚪', guestExit: '← Выйти из поиска',
     guestReadyQ: 'Готов к задаче?', guestReady: 'Готов!',
     guestGood: 'Верно! 😊', guestBad: 'Ошибка… гость грустит',
@@ -89,6 +97,7 @@ const STR = {
     petsHint: 'Питомцы сидят рядом. Выбери одного, кто будет давать подсказки.',
     petsOwned: 'У тебя питомцев: {n}', legendaryTitle: 'Легендарные питомцы', celebsTitle: 'Праздники победы',
     buy: 'Купить', notEnough: 'Мало монет', free: 'бесплатно', active: 'Активно', select: 'Выбрать',
+    confirmBuy: 'Точно купить за {n} евро?',
     roleHint: 'Подсказки',
     hintLvl: '💡 ур.{n}',
     petHint: '{e} {a}×{b}: {sum}',
@@ -105,7 +114,7 @@ const STR = {
     settingsTitle: 'Settings', langSection: 'Taal', timerWord: 'Timer', settingsBack: '← Terug',
     mapTitle: 'Kaart', mapTap: 'bekijk', mapBack: '← Terug', realMap: 'Echte kaart', gridMap: 'Rooster',
     guestBanner: '🚪 Er is een gast!', guestTitle: '🚪 Er is een gast!', guestDoorHint: 'Zoek de deur en open hem.',
-    guestChallenge: 'Help de gast: los 15 sommen op', guestGone: 'De gast is weg 😔 (geduld op)',
+    guestChallenge: 'Help de gast: los 5 sommen op', guestGone: 'De gast is weg 😔 (geduld op)',
     guestSearchHint: 'Open de deuren — achter één zit de gast! 🚪', guestExit: '← Stop met zoeken',
     guestReadyQ: 'Klaar voor de sommen?', guestReady: 'Klaar!',
     guestGood: 'Goed! 😊', guestBad: 'Fout… de gast wordt verdrietig',
@@ -143,6 +152,7 @@ const STR = {
     petsHint: 'Huisdieren zitten naast je. Kies er één die hints geeft.',
     petsOwned: 'Jouw huisdieren: {n}', legendaryTitle: 'Legendarische huisdieren', celebsTitle: 'Overwinningsfeestjes',
     buy: 'Kopen', notEnough: 'Te weinig munten', free: 'gratis', active: 'Actief', select: 'Kiezen',
+    confirmBuy: 'Echt kopen voor {n} euro?',
     roleHint: 'Hints',
     hintLvl: '💡 niv.{n}',
     petHint: '{e} {a}×{b}: {sum}',
@@ -159,7 +169,7 @@ const STR = {
     settingsTitle: 'Settings', langSection: 'Language', timerWord: 'Timer', settingsBack: '← Back',
     mapTitle: 'Map', mapTap: 'view', mapBack: '← Back', realMap: 'Real map', gridMap: 'Grid',
     guestBanner: '🚪 A guest arrived!', guestTitle: '🚪 A guest arrived!', guestDoorHint: 'Find the door and open it.',
-    guestChallenge: 'Help the guest: solve 15 problems', guestGone: 'The guest flew away 😔 (ran out of patience)',
+    guestChallenge: 'Help the guest: solve 5 problems', guestGone: 'The guest flew away 😔 (ran out of patience)',
     guestSearchHint: 'Open the doors — the guest hides behind one! 🚪', guestExit: '← Stop searching',
     guestReadyQ: 'Ready for the problems?', guestReady: 'Ready!',
     guestGood: 'Correct! 😊', guestBad: 'Wrong… the guest is sad',
@@ -197,6 +207,7 @@ const STR = {
     petsHint: 'Pets sit with you. Pick one to give hints.',
     petsOwned: 'Your pets: {n}', legendaryTitle: 'Legendary pets', celebsTitle: 'Victory celebrations',
     buy: 'Buy', notEnough: 'Not enough coins', free: 'free', active: 'Active', select: 'Select',
+    confirmBuy: 'Really buy for {n} euro?',
     roleHint: 'Hints',
     hintLvl: '💡 lvl {n}',
     petHint: '{e} {a}×{b}: {sum}',
@@ -230,7 +241,7 @@ for (let a = MIN; a <= MAX; a++) {
 function twin(f) { return factByKey[key(f.b, f.a)]; }
 
 // --- Состояние ---
-let coins = 0;
+let coins = 200;   // стартовый баланс
 let timerOn = false;          // включён ли таймер на ответ
 let timerSec = 5;             // секунд на пример (1..35)
 let openSection = null;       // null | 'lang' | 'timer' — открытый раздел настроек
@@ -239,7 +250,8 @@ let hintPet = null;           // emoji питомца, дающего подск
 let celebration = '🎉';
 let ownedCelebs = ['🎉'];
 // Гость: особые праздники (только от гостя, купить нельзя)
-const SPECIAL_CELEBS = ['🎇', '💤', '🪅', '🎈', '🎁', '🏆', '🥳', '🪩', '🧨', '💥', '⭐', '🎆', '☄️', '🎠', '🎡', '🎢', '🎪', '🍾', '🥂', '🎖️'];
+// особые (от гостя) — только те, у кого есть живая сценка; 🎁 — сюрприз (случайный особый)
+const SPECIAL_CELEBS = ['🎢', '🎠', '🎡', '🎪', '🎖️', '💣', '☄️', '🏆', '🎈', '🎆', '🎁'];
 let ownedSpecials = [];       // полученные особые праздники
 let guestWaiting = false;     // гость прилетел и ждёт (только пока играешь)
 let guestTimer = null;
@@ -427,8 +439,17 @@ function loadState() {
   hintPet = data.hintPet || null;
   celebration = data.celeb || '🎉';
   ownedCelebs = data.owned || ['🎉'];
-  ownedSpecials = data.specials || [];
   if (ownedCelebs.indexOf('🎉') === -1) ownedCelebs.push('🎉');
+  // пересобрать полученные от гостя праздники под текущий список особых:
+  // ставшие обычными — переезжают в обычные (остаются открытыми), удалённые — выбрасываются
+  const celebEmojis = CELEBS.map(c => c.emoji);
+  ownedSpecials = (data.specials || []).filter(e => {
+    if (SPECIAL_CELEBS.indexOf(e) !== -1) return true;                 // всё ещё особый
+    if (celebEmojis.indexOf(e) !== -1 && ownedCelebs.indexOf(e) === -1) ownedCelebs.push(e); // теперь обычный
+    return false;                                                     // убрать из особых (в т.ч. 💥/🧨)
+  });
+  // выбранный праздник должен быть у тебя; иначе — 🎉
+  if (celebration !== '🎉' && ownedCelebs.indexOf(celebration) === -1 && ownedSpecials.indexOf(celebration) === -1) celebration = '🎉';
   if (data.facts) {
     facts.forEach(f => {
       const s = data.facts[key(f.a, f.b)];
@@ -442,6 +463,15 @@ function applyOneTimeFix() {
     if (localStorage.getItem('mult_fix_306')) return;
     coins = 306; ownedPets = []; hintPet = null;
     localStorage.setItem('mult_fix_306', '1');
+    saveState();
+  } catch (e) { /* нет доступа */ }
+}
+// одноразово: стартовый баланс 200 евро (в т.ч. для тех, у кого уже была сохранёнка)
+function applyStartCoins() {
+  try {
+    if (localStorage.getItem('mult_start_200')) return;
+    coins = 200;
+    localStorage.setItem('mult_start_200', '1');
     saveState();
   } catch (e) { /* нет доступа */ }
 }
@@ -841,8 +871,11 @@ function renderShop() {
     el.shopSpecials.appendChild(b);
   });
 }
+// спросить подтверждение перед тратой евро
+function confirmBuy(price) { return window.confirm(t('confirmBuy', { n: price })); }
 function buyPet(p) {
   if (coins < p.price) { shopMsg(t('notEnough')); return; }
+  if (!confirmBuy(p.price)) return;
   coins -= p.price;
   ownedPets.push(p.emoji);
   updatePet(); saveState(); renderShop();
@@ -856,6 +889,7 @@ function pickCeleb(c) {
   const owned = ownedCelebs.indexOf(c.emoji) !== -1;
   if (!owned) {
     if (coins < c.price) { shopMsg(t('notEnough')); return; }
+    if (c.price > 0 && !confirmBuy(c.price)) return;   // спросить перед покупкой
     coins -= c.price;
     ownedCelebs.push(c.emoji);
   }
@@ -947,11 +981,11 @@ function showGuestMeeting() {
     `<div class="speech">${t('guestReadyQ')}</div>`;
 }
 
-// --- Испытание: 15 задач; временный набор, глобальную статистику не трогаем ---
+// --- Испытание: 5 задач; временный набор, глобальную статистику не трогаем ---
 function startGuestChallenge() {
   const combos = [];
   for (const a of GUEST_NUMS) for (const b of GUEST_NUMS) combos.push({ a, b });
-  const targets = shuffle(combos).slice(0, 15).map(c => ({ a: c.a, b: c.b, streak: 0, mt: 0, wrong: 0, last: 0 }));
+  const targets = shuffle(combos).slice(0, 5).map(c => ({ a: c.a, b: c.b, streak: 0, mt: 0, wrong: 0, last: 0 }));
   startSession({ kind: 'guest', temp: true, progress: false, need: 1, targets, title: t('guestChallenge'), reward: 0 });
   session.mood = GUEST_START_MOOD;
   el.guestMood.classList.remove('hidden');
@@ -971,7 +1005,7 @@ function guestFail() {
   scheduleGuest();
   showMenu(t('guestGone'));
 }
-// все 15 верно — подарок: один особый праздник
+// все 5 верно — подарок: один особый праздник
 function giveGuestReward() {
   guestWaiting = false;
   el.guestMood.classList.add('hidden');
@@ -990,7 +1024,7 @@ function showGuestReward(gift) {
   hideTimer();
   el.winTitle.textContent = t('guestGift');
   el.winText.textContent = t('guestGiftText', { e: gift });
-  el.winCorrect.textContent = 15;
+  el.winCorrect.textContent = 5;
   el.winWrong.textContent = 0;
   el.winCoins.textContent = '';
   el.winTime.textContent = '';
@@ -1396,7 +1430,20 @@ const CELEB_SCENES = {
   '🎠': c => parkRideScene(c, 'carousel'),
   '🎡': c => parkRideScene(c, 'ferris'),
   '🎪': circusScene,
+  '🎖️': medalScene,
+  '🏆': trophyScene,
+  '💣': bombScene,
+  '☄️': cometScene,
+  '🎈': balloonScene,
+  '🎆': fireworkScene,
+  '🎁': giftScene,
 };
+// 🎁 сюрприз: каждый раз показывает случайный ДРУГОЙ особый праздник
+function giftScene(container) {
+  const pool = SPECIAL_CELEBS.filter(e => e !== '🎁' && CELEB_SCENES[e]);
+  const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+  if (pick) CELEB_SCENES[pick](container);
+}
 
 function playCeleb(container) {
   container.innerHTML = '';
@@ -1881,6 +1928,245 @@ function circusScene(container) {
     '</div>';
 }
 
+// ===== СЦЕНКИ: МЕДАЛЬ И БОМБА =====
+// человечек анфас (голова, тело, руки, ноги); arms: 'down'|'up'|'hold'
+function personFwd(x, gy, shirt, arms) {
+  const sh = gy - 24;   // плечи
+  let a;
+  if (arms === 'up') a = '<line x1="' + x + '" y1="' + sh + '" x2="' + (x - 8) + '" y2="' + (sh - 8) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/><line x1="' + x + '" y1="' + sh + '" x2="' + (x + 8) + '" y2="' + (sh - 8) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/>';
+  else if (arms === 'hold') a = '<line x1="' + x + '" y1="' + sh + '" x2="' + (x + 9) + '" y2="' + (sh - 3) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/><line x1="' + x + '" y1="' + sh + '" x2="' + (x - 6) + '" y2="' + (sh + 5) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/>';
+  else a = '<line x1="' + x + '" y1="' + sh + '" x2="' + (x - 7) + '" y2="' + (sh + 8) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/><line x1="' + x + '" y1="' + sh + '" x2="' + (x + 7) + '" y2="' + (sh + 8) + '" stroke="' + shirt + '" stroke-width="2.6" stroke-linecap="round"/>';
+  return '<g>' +
+    '<line x1="' + x + '" y1="' + (gy - 10) + '" x2="' + (x - 5) + '" y2="' + gy + '" stroke="#333" stroke-width="3" stroke-linecap="round"/>' +
+    '<line x1="' + x + '" y1="' + (gy - 10) + '" x2="' + (x + 5) + '" y2="' + gy + '" stroke="#333" stroke-width="3" stroke-linecap="round"/>' +
+    '<line x1="' + x + '" y1="' + (gy - 24) + '" x2="' + x + '" y2="' + (gy - 10) + '" stroke="' + shirt + '" stroke-width="5" stroke-linecap="round"/>' +
+    a +
+    '<circle cx="' + x + '" cy="' + (gy - 30) + '" r="6" fill="#ffd27f" stroke="#7a5320" stroke-width="1"/>' +
+  '</g>';
+}
+// медалька (кружок на ленте)
+function medalSVG(x, y, s) {
+  s = s || 1;
+  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' +
+    '<path d="M-4 -10 L-1 0 M4 -10 L1 0" stroke="#e23b3b" stroke-width="2.4"/>' +
+    '<circle cx="0" cy="4" r="5.5" fill="#ffd93b" stroke="#c9971b" stroke-width="1.5"/>' +
+    '<circle cx="0" cy="4" r="2.4" fill="#ffe98a"/>' +
+  '</g>';
+}
+// плотная толпа с флажками у края (side: 'left'|'right') — БОЛЬШАЯ
+function bigCrowd(side) {
+  const shirts = ['#e23b3b', '#4f7cff', '#3ea35a', '#ff8a3d', '#9b5de5', '#ff5da2', '#00a3a3', '#f4b400'];
+  const flags = ['#ffd93b', '#ff5da2', '#4f7cff', '#3ea35a', '#ffffff', '#ff8a3d'];
+  const x0 = side === 'left' ? 4 : 214;
+  let s = '', i = side === 'left' ? 0 : 50;
+  for (const dy of [-9, -5, -1, 3]) {                 // четыре ряда — глубокая толпа
+    const off = (i % 2) * 4;
+    for (let x = x0 + off; x <= x0 + 100; x += 8) {
+      s += fanSVG(x, shirts[i % shirts.length], flags[i % flags.length], dy, ((i * 0.17) % 0.6).toFixed(2), ((i * 0.11) % 0.7).toFixed(2));
+      i++;
+    }
+  }
+  return s;
+}
+// СЦЕНКА: медаль 🎖️ — тебе надевают медаль под аплодисменты толп
+function medalScene(container) {
+  container.innerHTML =
+    '<div class="scene-box medalsc">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        parkBackdrop() +
+        bigCrowd('left') + bigCrowd('right') +
+        // ты (по центру), на груди — медаль, появляется когда наградили
+        '<g class="you-hop">' + personFwd(160, 184, '#2b6cb0', 'down') +
+          '<g class="you-medal">' + medalSVG(160, 165, 0.34) + '</g>' +
+        '</g>' +
+        // наградитель выходит справа с медалью в руке, надевает её
+        '<g class="medal-bearer">' + personFwd(182, 184, '#e67e22', 'hold') +
+          '<g class="bearer-medal">' + medalSVG(191, 160, 0.34) + '</g>' +
+        '</g>' +
+      '</svg>' +
+    '</div>';
+  celebSound();
+}
+// бомба на земле с фитилём и искрой
+function bombSVG(x, y) {
+  return '<g>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#2b2b2b"/>' +
+    '<ellipse cx="' + (x - 3) + '" cy="' + (y - 4) + '" rx="3" ry="2" fill="#555"/>' +
+    '<rect x="' + (x - 2) + '" y="' + (y - 15) + '" width="4" height="5" rx="1" fill="#6b6b6b"/>' +
+    '<path d="M' + x + ' ' + (y - 15) + ' q7 -6 3 -13" fill="none" stroke="#a9884f" stroke-width="2"/>' +
+    '<circle class="fuse-spark" cx="' + (x + 3) + '" cy="' + (y - 28) + '" r="2.6" fill="#ffdf5e"/>' +
+  '</g>';
+}
+// вспышка взрыва (звезда)
+function blastSVG(x, y) {
+  let pts = '';
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2, rr = i % 2 ? 10 : 26;
+    pts += (x + rr * Math.cos(a)).toFixed(1) + ',' + (y + rr * Math.sin(a)).toFixed(1) + ' ';
+  }
+  return '<g>' +
+    '<polygon points="' + pts.trim() + '" fill="#ffd93b"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="13" fill="#ff8a3d"/>' +
+    '<circle cx="' + x + '" cy="' + y + '" r="6" fill="#fff4dc"/>' +
+  '</g>';
+}
+// СЦЕНКА: бомба 💣 — человечек ставит бомбу, поджигает, убегает, взрывом его подкидывает за край
+function bombScene(container) {
+  container.innerHTML =
+    '<div class="scene-box bombsc">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        parkBackdrop() +
+        '<g class="bomb-obj">' + bombSVG(150, 176) + '</g>' +
+        '<g class="bomb-guy">' + personFwd(150, 184, '#e23b3b', 'down') + '</g>' +
+        '<g class="blast">' + blastSVG(150, 168) + '</g>' +
+      '</svg>' +
+    '</div>';
+  celebSound();
+}
+
+// ===== СЦЕНКИ: КУБОК, КОМЕТА, ШАРИКИ, ФЕЙЕРВЕРК =====
+// кубок (чаша с ручками на ножке)
+function trophySVG(x, y, s) {
+  s = s || 1;
+  return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' +
+    '<path d="M-7 -9 h14 v3 a7 6 0 0 1 -14 0 z" fill="#ffd93b" stroke="#c9971b" stroke-width="1"/>' +
+    '<path d="M-7 -8 q-5 0 -5 4 q0 3 4 3" fill="none" stroke="#c9971b" stroke-width="1.4"/>' +
+    '<path d="M7 -8 q5 0 5 4 q0 3 -4 3" fill="none" stroke="#c9971b" stroke-width="1.4"/>' +
+    '<rect x="-1.6" y="0" width="3.2" height="4" fill="#c9971b"/>' +
+    '<rect x="-5" y="4" width="10" height="2.6" rx="1" fill="#c9971b"/>' +
+  '</g>';
+}
+// СЦЕНКА: кубок 🏆 — как медаль, но тебе ВРУЧАЮТ кубок в руки
+function trophyScene(container) {
+  container.innerHTML =
+    '<div class="scene-box medalsc">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        parkBackdrop() +
+        bigCrowd('left') + bigCrowd('right') +
+        '<g class="you-hop">' + personFwd(160, 184, '#2b6cb0', 'hold') +
+          '<g class="you-medal">' + trophySVG(173, 165, 1) + '</g>' +
+        '</g>' +
+        '<g class="medal-bearer">' + personFwd(182, 184, '#e67e22', 'hold') +
+          '<g class="bearer-medal">' + trophySVG(191, 159, 1) + '</g>' +
+        '</g>' +
+      '</svg>' +
+    '</div>';
+  celebSound();
+}
+
+// сумеречное небо со звёздами — для комет и фейерверка
+function nightBackdrop() {
+  let stars = '<g fill="#ffffff">';
+  const xs = [30, 70, 110, 150, 200, 240, 280, 300, 50, 90, 170, 220, 260];
+  const ys = [20, 40, 15, 45, 25, 12, 38, 22, 60, 30, 55, 48, 62];
+  for (let i = 0; i < xs.length; i++) stars += '<circle cx="' + xs[i] + '" cy="' + ys[i] + '" r="' + (i % 3 ? 1 : 1.6) + '" opacity="0.85"/>';
+  stars += '</g>';
+  return '<defs><linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#1e2a5a"/><stop offset="1" stop-color="#4b3b72"/>' +
+    '</linearGradient></defs>' +
+    '<rect x="0" y="0" width="320" height="200" fill="url(#nsky)"/>' +
+    stars +
+    '<path d="M0 178 Q80 160 160 178 T320 176 V200 H0 Z" fill="#2f6b3a"/>' +
+    '<rect x="0" y="184" width="320" height="16" fill="#245a30"/>';
+}
+// одна падающая комета (голова + хвост), диагональ сверху-вправо → вниз-влево
+function cometSVG(i) {
+  const sx = 60 + i * 55, dl = (-i * 1.1).toFixed(2);
+  return '<g class="comet" style="animation-delay:' + dl + 's;--sx:' + sx + 'px">' +
+    '<line x1="0" y1="0" x2="26" y2="-20" stroke="#ffd27f" stroke-width="3.5" stroke-linecap="round" opacity="0.85"/>' +
+    '<line x1="0" y1="0" x2="17" y2="-13" stroke="#fff4dc" stroke-width="1.6" stroke-linecap="round"/>' +
+    '<circle cx="0" cy="0" r="4.5" fill="#ffb14a"/>' +
+    '<circle cx="0" cy="0" r="2.4" fill="#fff4dc"/>' +
+  '</g>';
+}
+// СЦЕНКА: комета ☄️ — ты гуляешь, на тебя и рядом падают кометы
+function cometScene(container) {
+  let cm = '';
+  for (let i = 0; i < 5; i++) cm += cometSVG(i);
+  container.innerHTML =
+    '<div class="scene-box cometsc">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        nightBackdrop() +
+        '<g class="comet-you">' + personFwd(160, 184, '#4f9ee8', 'down') + '</g>' +
+        cm +
+      '</svg>' +
+    '</div>';
+  celebSound();
+}
+
+// толпа с флажками по всей ширине (прыгает) — для шариков и фейерверка
+function crowdWide(withFlags) {
+  const shirts = ['#e23b3b', '#4f7cff', '#3ea35a', '#ff8a3d', '#9b5de5', '#ff5da2', '#00a3a3', '#f4b400'];
+  const flags = ['#ffd93b', '#ff5da2', '#4f7cff', '#3ea35a', '#ffffff', '#ff8a3d'];
+  let s = '', i = 0;
+  for (const dy of [-6, -2, 2]) {
+    const off = (i % 2) * 4;
+    for (let x = 6 + off; x <= 316; x += 9) {
+      s += fanSVG(x, shirts[i % shirts.length], flags[i % flags.length], dy, ((i * 0.17) % 0.6).toFixed(2), ((i * 0.11) % 0.7).toFixed(2));
+      i++;
+    }
+  }
+  return s;
+}
+// шарик, летящий вверх
+function balloonUp(x, color, delay) {
+  return '<g class="balloon" style="animation-delay:' + delay + 's">' +
+    '<line x1="' + x + '" y1="182" x2="' + x + '" y2="196" stroke="#888" stroke-width="0.8"/>' +
+    '<ellipse cx="' + x + '" cy="176" rx="7" ry="9" fill="' + color + '"/>' +
+    '<ellipse cx="' + (x - 2) + '" cy="173" rx="2" ry="3" fill="rgba(255,255,255,0.5)"/>' +
+    '<polygon points="' + x + ',185 ' + (x - 2) + ',188 ' + (x + 2) + ',188" fill="' + color + '"/>' +
+  '</g>';
+}
+// СЦЕНКА: шарики 🎈 — толпа скачет с флажками и запускает воздушные шарики вверх
+function balloonScene(container) {
+  const cols = ['#e23b3b', '#4f7cff', '#3ea35a', '#ff8a3d', '#9b5de5', '#ff5da2', '#f4b400', '#00a3a3'];
+  let bs = '';
+  for (let i = 0; i < 14; i++) bs += balloonUp(16 + i * 21, cols[i % cols.length], (-i * 0.5).toFixed(2));
+  container.innerHTML =
+    '<div class="scene-box balloonsc">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        parkBackdrop() +
+        bs +
+        crowdWide() +
+      '</svg>' +
+    '</div>';
+  celebSound();
+}
+
+// снаряд фейерверка, взлетающий от толпы и взрывающийся чуть выше
+function fwShell(i) {
+  const x = 30 + i * 46, dl = (-i * 0.85).toFixed(2), color = ['#ff5da2', '#ffd93b', '#4f7cff', '#3ea35a', '#ff8a3d', '#9b5de5'][i % 6];
+  const burst = '<g class="fw-burst" style="animation-delay:' + dl + 's">' + fwStar(x, 55 + (i % 3) * 22, color) + '</g>';
+  const rise = '<g class="fw-shell" style="animation-delay:' + dl + 's">' +
+    '<circle cx="' + x + '" cy="176" r="2.4" fill="' + color + '"/></g>';
+  return rise + burst;
+}
+// звезда-взрыв фейерверка (лучи из центра)
+function fwStar(x, y, color) {
+  let s = '<g stroke="' + color + '" stroke-width="2" stroke-linecap="round">';
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * Math.PI * 2;
+    s += '<line x1="' + x + '" y1="' + y + '" x2="' + (x + 16 * Math.cos(a)).toFixed(1) + '" y2="' + (y + 16 * Math.sin(a)).toFixed(1) + '"/>';
+  }
+  s += '</g><circle cx="' + x + '" cy="' + y + '" r="3" fill="#fff4dc"/>';
+  return s;
+}
+// СЦЕНКА: фейерверк 🎆 — человек впереди, за ним толпа (флажки + запускалки), фейерверки в небе
+function fireworkScene(container) {
+  let shells = '';
+  for (let i = 0; i < 6; i++) shells += fwShell(i);
+  container.innerHTML =
+    '<div class="scene-box fwsc">' +
+      '<svg class="scene-svg" viewBox="0 0 320 200" aria-hidden="true">' +
+        nightBackdrop() +
+        shells +
+        crowdWide() +
+        '<g>' + personFwd(160, 186, '#ffd93b', 'up') + '</g>' +
+      '</svg>' +
+    '</div>';
+  celebSound();
+}
+
 // =================== ТАЙМЕР НА ОТВЕТ ===================
 let timerRaf = null;
 let timerDeadline = 0;
@@ -2086,6 +2372,7 @@ el.timerSecInput.addEventListener('input', () => setTimerSec(el.timerSecInput.va
 loadLang();
 loadState();
 applyOneTimeFix();
+applyStartCoins();
 updatePet();
 applyLang();
 showMenu();
