@@ -626,24 +626,90 @@ function showMap() {
   el.mapScreen.classList.remove('hidden');
 }
 
-function buildRealMap() {
-  el.realmapRoad.innerHTML = '';
-  const perRow = 3;
-  let row = null;
-  facts.forEach((f, i) => {
-    if (i % perRow === 0) {
-      row = document.createElement('div');
-      row.className = 'road-row';
-      if (Math.floor(i / perRow) % 2 === 1) row.style.flexDirection = 'row-reverse'; // змейка
-      el.realmapRoad.appendChild(row);
+// сгладить ломаную через точки (Catmull-Rom → кубические Безье) — извилистая тропинка
+function smoothPath(pts) {
+  if (pts.length < 2) return '';
+  let d = 'M' + pts[0][0] + ' ' + pts[0][1];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ' C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+  }
+  return d;
+}
+const STATUS_FILL = { 'status-none': '#9ca3af', 'status-ok': '#22c55e', 'status-miss': '#f59e0b', 'status-wrong': '#ef4444' };
+function rmTree(x, y) {
+  return '<g>' +
+    '<rect x="' + (x - 2) + '" y="' + (y + 1) + '" width="4" height="9" rx="1" fill="#6b4a2a"/>' +   // ствол потолще
+    '<circle cx="' + (x - 5) + '" cy="' + (y + 1) + '" r="5" fill="#4aa350"/>' +
+    '<circle cx="' + (x + 5) + '" cy="' + (y + 1) + '" r="5" fill="#4aa350"/>' +
+    '<circle cx="' + x + '" cy="' + (y - 3) + '" r="7" fill="#3f8f43"/>' +
+  '</g>';
+}
+function rmBush(x, y) {
+  return '<g fill="#57a95a">' +
+    '<circle cx="' + (x - 4) + '" cy="' + (y + 1) + '" r="3.5"/>' +
+    '<circle cx="' + (x + 4) + '" cy="' + (y + 1) + '" r="3.5"/>' +
+    '<circle cx="' + x + '" cy="' + (y - 1) + '" r="4.5"/>' +
+  '</g>';
+}
+// расстояние от точки до отрезка (чтобы не сажать растения на тропинку)
+function segDist(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+  let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+// деревья и кусты, РАЗБРОСАННЫЕ природно по всей поляне (не рядами), но не на тропе
+function mapDecor(pts, W, H) {
+  const farFromTrail = (x, y) => {
+    for (let i = 0; i < pts.length - 1; i++) {
+      if (segDist(x, y, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y) < 22) return false;
     }
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'stop ' + statusClass(f);
-    b.textContent = `${f.a}×${f.b}`;
-    b.addEventListener('click', () => startTable(f.a));
-    row.appendChild(b);
+    return true;
+  };
+  const target = Math.round(H / 22);
+  let s = '', placed = 0, tries = 0;
+  while (placed < target && tries < target * 8) {
+    tries++;
+    const x = 9 + Math.random() * (W - 18);
+    const y = 16 + Math.random() * (H - 26);
+    if (!farFromTrail(x, y)) continue;
+    s += (Math.random() < 0.5 ? rmTree(x, y) : rmBush(x, y));
+    placed++;
+  }
+  return s;
+}
+// настоящая карта: узкая забытая лесная тропинка, остановки идут по ней одна за другой
+function buildRealMap() {
+  const W = 300, perRow = 3, r = 16, rowGap = 60, y0 = 34, x0 = 40;
+  const colGap = (W - 2 * x0) / (perRow - 1);
+  const pts = facts.map((f, i) => {
+    const row = Math.floor(i / perRow);
+    let col = i % perRow;
+    if (row % 2 === 1) col = perRow - 1 - col;           // змейка
+    return { x: x0 + col * colGap, y: y0 + row * rowGap, f };
   });
+  const nRows = Math.ceil(facts.length / perRow);
+  const H = y0 + nRows * rowGap;
+  const d = smoothPath(pts.map(p => [p.x, p.y]));
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block">';
+  s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#a7d18a"/>';   // лесная поляна
+  // узкая землистая тропинка (без разметки): тёмный кант + светлый грунт
+  s += '<path d="' + d + '" fill="none" stroke="#7c6238" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>';
+  s += '<path d="' + d + '" fill="none" stroke="#c7ac7d" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>';
+  s += mapDecor(pts, W, H);
+  // остановки поверх тропинки
+  for (const p of pts) {
+    const fill = STATUS_FILL[statusClass(p.f)] || '#9ca3af';
+    s += '<g class="rm-stop" data-a="' + p.f.a + '" style="cursor:pointer">' +
+      '<circle cx="' + p.x + '" cy="' + p.y + '" r="' + r + '" fill="' + fill + '" stroke="#fff" stroke-width="2.5"/>' +
+      '<text x="' + p.x + '" y="' + (p.y + 3.2) + '" text-anchor="middle" font-size="8.5" font-weight="800" fill="#111827">' + p.f.a + '×' + p.f.b + '</text>' +
+      '</g>';
+  }
+  s += '</svg>';
+  el.realmapRoad.innerHTML = s;
 }
 function showRealMap() {
   renderLegend(el.legend1);
@@ -655,7 +721,7 @@ function showRealMap() {
 
 function buildGrid() {
   const n = MAX - MIN + 1;
-  el.gridRoot.style.gridTemplateColumns = `repeat(${n + 1}, 1cm)`;
+  el.gridRoot.style.gridTemplateColumns = `repeat(${n + 1}, 1fr)`;  // резиновые клетки — всегда влезают
   el.gridRoot.innerHTML = '';
   const head = txt => { const d = document.createElement('div'); d.className = 'grid-head'; d.textContent = txt; return d; };
   el.gridRoot.appendChild(head('×'));
@@ -1999,6 +2065,10 @@ el.settingsBtn.addEventListener('click', showSettings);
 el.mapMenuBtn.addEventListener('click', showMap);
 el.mapBackBtn.addEventListener('click', () => showMenu());
 el.realMapBtn.addEventListener('click', showRealMap);
+el.realmapRoad.addEventListener('click', e => {   // клик по остановке на тропинке
+  const g = e.target.closest('.rm-stop');
+  if (g) startTable(+g.dataset.a);
+});
 el.gridMapBtn.addEventListener('click', showGrid);
 el.realmapBackBtn.addEventListener('click', showMap);
 el.gridBackBtn.addEventListener('click', showMap);

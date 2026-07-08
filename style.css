@@ -308,29 +308,21 @@ body.urgent::before {
 .map-legend .lg { display: flex; align-items: center; gap: 6px; }
 .map-legend .dot { width: 16px; height: 16px; border-radius: 50%; }
 
-/* Настоящая карта — дорога-змейка, ~3 см между остановками */
-.road { display: flex; flex-direction: column; align-items: center; gap: 3cm; padding: 4px 0 60px; }
-.road-row { display: flex; justify-content: center; gap: 3cm; }
-.stop {
-  width: 52px; height: 52px; min-width: 52px;
-  border-radius: 50%; border: none; padding: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.72rem; font-weight: 800; color: #111827;
-  cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-}
+/* Настоящая карта — одна петляющая тропинка (SVG внутри) */
+.road { padding: 0 0 40px; border-radius: 14px; overflow: hidden; }
+.rm-stop text { pointer-events: none; }
 
-/* Сетка 13×13 — клетки ~1 см */
-.grid-scroll { overflow-x: auto; padding-bottom: 30px; }
-.grid-root { display: inline-grid; gap: 3px; }
+/* Сетка 13×13 — резиновые клетки, всегда влезают по ширине (двигать не надо) */
+.grid-scroll { padding-bottom: 30px; }
+.grid-root { display: grid; width: 100%; gap: 2px; }
 .grid-cell {
-  width: 1cm; height: 1cm; border: none; padding: 0;
-  border-radius: 4px; cursor: pointer;
+  aspect-ratio: 1; border: none; padding: 0;
+  border-radius: 3px; cursor: pointer;
 }
 .grid-head {
-  width: 1cm; height: 1cm;
+  aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 0.68rem; font-weight: 800;
+  color: #fff; font-size: 0.6rem; font-weight: 800;
 }
 
 /* --- Гость --- */
