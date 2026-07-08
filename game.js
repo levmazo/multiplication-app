@@ -49,7 +49,7 @@ const STR = {
     menuTitle: '✖️ Таблица умножения', learnedTotal: 'Выучено всего:',
     of: 'из', resetAll: 'Сбросить весь прогресс', backMenu: '← Обратно',
     settingsTitle: 'Settings', langSection: 'Язык', timerWord: 'Таймер', settingsBack: '← Обратно',
-    mapTitle: 'Карта', mapTap: 'смотреть', mapBack: '← Карта', realMap: 'Настоящая карта', gridMap: 'Сетка',
+    mapTitle: 'Карта', mapTap: 'смотреть', mapBack: '← Обратно', realMap: 'Настоящая карта', gridMap: 'Сетка',
     guestBanner: '🚪 Гость прилетел!', guestTitle: '🚪 Гость прилетел!', guestDoorHint: 'Найди дверь и открой её.',
     guestChallenge: 'Помоги гостю: реши 15 задач', guestGone: 'Гость улетел 😔 (кончилось терпение)',
     guestSearchHint: 'Открывай двери — за одной прячется гость! 🚪', guestExit: '← Выйти из поиска',
@@ -58,7 +58,7 @@ const STR = {
     guestEmpty: ['Тут пусто…', 'Только паутина 🕸️', 'Никого нет', 'Скрип… и пусто', 'Пустая комната'],
     guestGift: '🎁 Подарок гостя!', guestGiftText: 'Ты получил особый праздник: {e}',
     specialsTitle: 'Особые праздники (от гостя)', specialsEmpty: 'Пока пусто — помоги гостю, и он подарит особый праздник.',
-    legDone: 'верно', legMissed: 'не успел', legWrong: 'неверно', legNone: 'не решал', tableOf: 'Таблица ×{n}',
+    legDone: 'выучено', legMissed: 'не успел', legWrong: 'неверно', legNone: 'не решал', tableOf: 'Таблица ×{n}',
     timerEnable: 'Включить таймер', timerSecPre: 'Таймер на', timerSecPost: 'секунд',
     missedLbl: 'Не успел:', fbTimeout: '⏰ Время вышло! Попробуй решить эту задачку вовремя чуть позже.',
     dictTimeout: '⏰ Не успел: {a}×{b}={r}',
@@ -103,7 +103,7 @@ const STR = {
     menuTitle: '✖️ vermenigvuldigen', learnedTotal: 'In totaal geleerd:',
     of: 'van', resetAll: 'Alle voortgang wissen', backMenu: '← Terug',
     settingsTitle: 'Settings', langSection: 'Taal', timerWord: 'Timer', settingsBack: '← Terug',
-    mapTitle: 'Kaart', mapTap: 'bekijk', mapBack: '← Kaart', realMap: 'Echte kaart', gridMap: 'Rooster',
+    mapTitle: 'Kaart', mapTap: 'bekijk', mapBack: '← Terug', realMap: 'Echte kaart', gridMap: 'Rooster',
     guestBanner: '🚪 Er is een gast!', guestTitle: '🚪 Er is een gast!', guestDoorHint: 'Zoek de deur en open hem.',
     guestChallenge: 'Help de gast: los 15 sommen op', guestGone: 'De gast is weg 😔 (geduld op)',
     guestSearchHint: 'Open de deuren — achter één zit de gast! 🚪', guestExit: '← Stop met zoeken',
@@ -112,7 +112,7 @@ const STR = {
     guestEmpty: ['Hier is niets…', 'Alleen een spinnenweb 🕸️', 'Niemand hier', 'Kraak… en leeg', 'Lege kamer'],
     guestGift: '🎁 Cadeau van de gast!', guestGiftText: 'Je kreeg een speciaal feestje: {e}',
     specialsTitle: 'Speciale feestjes (van de gast)', specialsEmpty: 'Nog leeg — help de gast en je krijgt een speciaal feestje.',
-    legDone: 'goed', legMissed: 'niet op tijd', legWrong: 'fout', legNone: 'niet gedaan', tableOf: 'Tafel van {n}',
+    legDone: 'geleerd', legMissed: 'niet op tijd', legWrong: 'fout', legNone: 'niet gedaan', tableOf: 'Tafel van {n}',
     timerEnable: 'Timer aan', timerSecPre: 'Timer op', timerSecPost: 'seconden',
     missedLbl: 'Niet op tijd:', fbTimeout: '⏰ De tijd is om! Probeer deze som straks binnen de tijd op te lossen.',
     dictTimeout: '⏰ Niet op tijd: {a}×{b}={r}',
@@ -157,7 +157,7 @@ const STR = {
     menuTitle: '✖️ Multiplication table', learnedTotal: 'Learned in total:',
     of: 'of', resetAll: 'Reset all progress', backMenu: '← Back',
     settingsTitle: 'Settings', langSection: 'Language', timerWord: 'Timer', settingsBack: '← Back',
-    mapTitle: 'Map', mapTap: 'view', mapBack: '← Map', realMap: 'Real map', gridMap: 'Grid',
+    mapTitle: 'Map', mapTap: 'view', mapBack: '← Back', realMap: 'Real map', gridMap: 'Grid',
     guestBanner: '🚪 A guest arrived!', guestTitle: '🚪 A guest arrived!', guestDoorHint: 'Find the door and open it.',
     guestChallenge: 'Help the guest: solve 15 problems', guestGone: 'The guest flew away 😔 (ran out of patience)',
     guestSearchHint: 'Open the doors — the guest hides behind one! 🚪', guestExit: '← Stop searching',
@@ -166,7 +166,7 @@ const STR = {
     guestEmpty: ['Nothing here…', 'Just a cobweb 🕸️', 'Nobody here', 'Creak… and empty', 'Empty room'],
     guestGift: '🎁 Guest gift!', guestGiftText: 'You got a special celebration: {e}',
     specialsTitle: 'Special celebrations (from the guest)', specialsEmpty: 'Empty for now — help the guest to get a special celebration.',
-    legDone: 'correct', legMissed: 'missed', legWrong: 'wrong', legNone: 'not done', tableOf: 'Table of {n}',
+    legDone: 'learned', legMissed: 'missed', legWrong: 'wrong', legNone: 'not done', tableOf: 'Table of {n}',
     timerEnable: 'Enable timer', timerSecPre: 'Timer for', timerSecPost: 'seconds',
     missedLbl: 'Missed:', fbTimeout: '⏰ Time is up! Try to solve it in time a bit later.',
     dictTimeout: '⏰ Time is up: {a}×{b}={r}',
@@ -597,7 +597,9 @@ function setTimerSec(v) {
 }
 // =================== КАРТА ===================
 const STATUS_CLASS = ['status-none', 'status-ok', 'status-miss', 'status-wrong'];
-function statusClass(f) { return STATUS_CLASS[f.last] || 'status-none'; }
+// выученное (готова) всегда зелёное — одинаково на карте, в сетке и в своём выборе;
+// иначе показываем последний ответ (не успел / неверно / не решал)
+function statusClass(f) { return f.mastered ? 'status-ok' : (STATUS_CLASS[f.last] || 'status-none'); }
 
 function renderLegend(container) {
   const items = [
